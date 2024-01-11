@@ -4,6 +4,7 @@ from PyQt6.QtWidgets import QGraphicsView, QGraphicsScene, QMenu
 
 from edgeObject import EdgeObject
 from nodeObject import NodeObject
+from node import Node, node_list
 
 
 class GraphicView(QGraphicsView):
@@ -24,18 +25,21 @@ class GraphicView(QGraphicsView):
         self.setScene(self.scene)
         self.setSceneRect(0, 0, 1200, 1000)
 
-        self.nodes = []
+        #self.nodes = []
         self.edges = []
+        self.nodes_map = {}
 
         # self.moveObject = MovingObject(50, 50, "C:\\Users\\Raven\\Desktop\\node.png")
         # self.moveObject2 = MovingObject(100, 100, "C:\\Users\\Raven\\Desktop\\node11.png")
         # self.moveObject = MovingObject(50, 50, "NodeIcons\\node1.png")
-        self.node1 = NodeObject(50, 50, "NodeIcons\\node11.png", self.edges)
-        self.node2 = NodeObject(100, 100, "NodeIcons\\node11.png", self.edges)
+
+        #self.node1 = NodeObject(50, 50, "NodeIcons\\node11.png", self.edges)
+        #self.node2 = NodeObject(100, 100, "NodeIcons\\node11.png", self.edges)
+
         # self.scene.addItem(self.node1)
         # self.scene.addItem(self.node2)
 
-        self.edge = EdgeObject(self.node1, self.node2)
+        '''self.edge = EdgeObject(self.node1, self.node2)
 
         self.nodes.extend([self.node1, self.node2])
         self.edges.append(self.edge)
@@ -44,7 +48,7 @@ class GraphicView(QGraphicsView):
             self.scene.addItem(node)
 
         for edge in self.edges:
-            self.scene.addItem(edge)
+            self.scene.addItem(edge)'''
 
         # Set scroll hand drag mode for panning
         self.setDragMode(QGraphicsView.DragMode.ScrollHandDrag)
@@ -117,9 +121,17 @@ class GraphicView(QGraphicsView):
         self.edges.remove(link)
 
     def addNode(self, pos):
-        new_node = NodeObject(pos.x(), pos.y(), "NodeIcons\\node11.png", self.edges)
-        self.nodes.append(new_node)
+        new_node = Node(len(node_list) + 1)
+        node_list.append(new_node)
+
+        new_node_object = NodeObject(pos.x(), pos.y(), "NodeIcons\\node11.png", self.edges)
+        # self.nodes.append(new_node_object)
         self.scene.addItem(new_node)
+
+        self.nodes_map[new_node] = new_node_object
+
+        for node in node_list:
+            print('Node', node.key, 'neighbors:', node.neighbors)
 
     def deleteNode(self, node):
         # Remove only the edges connected to the deleted node
@@ -130,10 +142,12 @@ class GraphicView(QGraphicsView):
 
         # Remove the node from the scene and the list of nodes
         self.scene.removeItem(node)
-        self.nodes.remove(node)
+        #self.nodes.remove(node)
+        node_list.remove(node)
 
         # Clear the edges list from the deleted node
         node.edges = []
+        node.neighbors = []
 
     def startAddingLink(self, node, pos):
         # Set the current node for linking
@@ -163,7 +177,7 @@ class GraphicView(QGraphicsView):
         else:
             super().mousePressEvent(event)
 
-    def addLinkStart(self, event):
+    '''def addLinkStart(self, event):
         print("Custom mousePressEvent is called")
         if isinstance(event, QPointF):
             # Convert scene coordinates to view coordinates
@@ -178,9 +192,10 @@ class GraphicView(QGraphicsView):
             self.scene.addItem(new_edge)
 
         self.scene.mousePressEvent = QGraphicsScene.mousePressEvent
-        self.adding_link_node = None
+        self.adding_link_node = None'''
 
     def clearAll(self):
         self.scene.clear()
-        self.nodes = []
+        # self.nodes = []
         self.edges = []
+        self.nodes_map = {}
