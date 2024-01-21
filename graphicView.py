@@ -1,5 +1,5 @@
 from PyQt6.QtCore import QTimer, QPointF, Qt
-from PyQt6.QtGui import QPainter
+from PyQt6.QtGui import QPainter, QPixmap
 from PyQt6.QtWidgets import QGraphicsView, QGraphicsScene, QMenu
 
 from edgeObject import EdgeObject
@@ -116,6 +116,18 @@ class GraphicView(QGraphicsView):
 
         context_menu.exec(self.mapToGlobal(pos))
 
+    def addLink(self, node1, node2):
+        node1.neighbors.add(node2)
+        node2.neighbors.add(node1)
+
+        node_object1 = next((key for key, value in self.nodes_map.items() if value == node1), None)
+        node_object2 = next((key for key, value in self.nodes_map.items() if value == node2), None)
+
+        new_edge = EdgeObject(node_object1, node_object2)
+        new_edge.setZValue(1)
+        self.edges.append(new_edge)
+        self.scene.addItem(new_edge)
+
     def deleteLink(self, link):
         self.scene.removeItem(link)
         self.edges.remove(link)
@@ -143,20 +155,17 @@ class GraphicView(QGraphicsView):
             new_node = Node(node_list[-1].key + 1)
         node_list.append(new_node)
 
-        new_node_object = NodeObject(pos.x(), pos.y(), "NodeIcons\\node11.png", self.edges)
+        # Load the image and resize it
+        '''original_pixmap = QPixmap("NodeIcons\\node11.png")
+        resized_pixmap = original_pixmap.scaledToWidth(20)  # Adjust the width as needed'''
+
+        new_node_object = NodeObject(pos.x(), pos.y(), "NodeIcons\\node.png", self.edges)
+        new_node_object.setZValue(2)
         # self.nodes.append(new_node_object)
         self.scene.addItem(new_node_object)
 
         # self.nodes_map[new_node] = new_node_object
         self.nodes_map[new_node_object] = new_node
-
-        ids = set()
-        for node in node_list:
-            for neighb in node.neighbors:
-                ids.add(neighb.key)
-            print('Node', node.key, 'neighbors:', ids)
-            ids = set()
-        print()
 
     def deleteNode(self, node_object):
         # Find the corresponding Node instance in the map

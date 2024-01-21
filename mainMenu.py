@@ -3,7 +3,7 @@ import random
 
 import networkx as nx
 from PyQt6.QtCore import QPointF, Qt
-from PyQt6.QtGui import QAction
+from PyQt6.QtGui import QAction, QPixmap
 from PyQt6.QtWidgets import QMenu, QGraphicsLineItem
 from shapely.geometry import Point
 from random import uniform
@@ -12,6 +12,7 @@ from random import uniform
 from edgeObject import EdgeObject
 from netGenerationDialog import NetworkGenerationDialog
 from nodeObject import NodeObject
+from node import node_list
 
 
 def create_main_menu(window):
@@ -72,7 +73,7 @@ def generate_net(window):
         print(f"Network Density: {user_input['density']}")'''
         nodes = user_input['nodes']
         density = user_input['density']
-        min_distance = 70
+        min_distance = 40
 
         '''# Generate Erdős-Rényi graph
         erdos_renyi_graph = nx.erdos_renyi_graph(nodes, density)
@@ -91,7 +92,7 @@ def generate_net(window):
         scene_rect = window.graphic_view.sceneRect()
 
         # Generate random positions for node positions with minimum distance constraint
-        i = 0
+        '''i = 0
         node_positions = []
         for _ in range(nodes):
             while True:
@@ -100,11 +101,46 @@ def generate_net(window):
                 distances = [math.hypot(pos.x() - random_pos.x(), pos.y() - random_pos.y()) for pos in node_positions]
                 if all(distance >= min_distance for distance in distances):
                     node_positions.append(random_pos)
+                    break'''
+        max_attempts = 100  # Set a reasonable maximum number of attempts
+
+        node_positions = []
+        for _ in range(nodes):
+            for _ in range(max_attempts):
+                random_pos = QPointF(uniform(scene_rect.left(), scene_rect.right()),
+                                     uniform(scene_rect.top(), scene_rect.bottom()))
+
+                distances = [math.hypot(pos.x() - random_pos.x(), pos.y() - random_pos.y()) for pos in node_positions]
+
+                if all(distance >= min_distance for distance in distances):
+                    node_positions.append(random_pos)
                     break
+            else:
+                # If the inner loop completes without a valid position, handle it here
+                print("Unable to find a valid position after multiple attempts.")
+
+        # available_scene_area = scene_rect.width() * scene_rect.height()
 
         # Add nodes to GraphicView
         for node, pos in zip(erdos_renyi_graph.nodes, node_positions):
             window.graphic_view.addNode(pos)
+            '''estimated_size = math.sqrt(available_scene_area / nodes)
+
+            # Ensure a minimum size to avoid very small nodes
+            min_size = 10
+            estimated_size = int(max(estimated_size, min_size))
+
+            # Resize the node pixmap based on the estimated size
+            original_pixmap = new_node_object.pixmap()
+            resized_pixmap = original_pixmap.scaledToWidth(estimated_size)
+
+            new_node_object.setPixmap(resized_pixmap)'''
+
+        # Add edges based on density
+        for i in range(len(node_list)):
+            for j in range(i + 1, len(node_list)):
+                if random.random() < density:
+                    window.graphic_view.addLink(node_list[i], node_list[j])
 
         # Add nodes to the GraphicView scene
         for node in erdos_renyi_graph.nodes:

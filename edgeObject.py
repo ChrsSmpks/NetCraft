@@ -2,7 +2,7 @@ import weakref
 
 from PyQt6.QtCore import QLineF, QPointF, Qt
 from PyQt6.QtWidgets import QGraphicsLineItem
-from PyQt6.QtGui import QPen
+from PyQt6.QtGui import QPen, QColor
 
 
 class EdgeObject(QGraphicsLineItem):
@@ -14,6 +14,7 @@ class EdgeObject(QGraphicsLineItem):
 
         self.updatePosition()
 
+        # pen = QPen(QColor("#dbcdf0"), 1)
         self.setPen(QPen(Qt.GlobalColor.black, 2))
 
     def updatePosition(self):

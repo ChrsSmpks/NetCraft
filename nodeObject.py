@@ -8,6 +8,7 @@ class NodeObject(QGraphicsPixmapItem):
         super().__init__()
 
         pixmap = QPixmap(image_path)  # Load your custom image
+        #pixmap.scaledToWidth(5)
         self.setPixmap(pixmap)
 
         self.setPos(x, y)
@@ -15,8 +16,6 @@ class NodeObject(QGraphicsPixmapItem):
         self.setAcceptHoverEvents(True)
 
         self.edges = edges  # List to keep track of connected edges
-
-        self.deleted = False  # Flag to track whether the node is deletedψ
 
     # mouse click event
     def mousePressEvent(self, event):
