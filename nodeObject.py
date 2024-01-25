@@ -1,4 +1,4 @@
-from PyQt6.QtCore import QPointF, Qt, pyqtSignal
+from PyQt6.QtCore import QPointF, Qt
 from PyQt6.QtWidgets import QGraphicsPixmapItem, QGraphicsTextItem
 from PyQt6.QtGui import QPixmap
 
@@ -8,6 +8,7 @@ class NodeObject(QGraphicsPixmapItem):
         super().__init__()
 
         self.key = key
+        self.neighbors = set()
 
         pixmap = QPixmap(image_path)  # Load your custom image
         #pixmap.scaledToWidth(5)
@@ -47,3 +48,6 @@ class NodeObject(QGraphicsPixmapItem):
 
     def mouseReleaseEvent(self, event):
         print('x: {0}, y: {1}'.format(self.pos().x(), self.pos().y()))
+
+
+node_list = []

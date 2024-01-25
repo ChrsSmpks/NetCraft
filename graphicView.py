@@ -1,10 +1,9 @@
 from PyQt6.QtCore import QTimer, QPointF, Qt
-from PyQt6.QtGui import QPainter, QPixmap
-from PyQt6.QtWidgets import QGraphicsView, QGraphicsScene, QMenu, QGraphicsTextItem
+from PyQt6.QtGui import QPainter
+from PyQt6.QtWidgets import QGraphicsView, QGraphicsScene, QMenu
 
 from edgeObject import EdgeObject
-from nodeObject import NodeObject
-from node import Node, node_list
+from nodeObject import NodeObject, node_list
 
 
 class GraphicView(QGraphicsView):
@@ -13,7 +12,7 @@ class GraphicView(QGraphicsView):
 
         self.main_window = main_window
 
-        self.adding_link_node = None
+        self.source_node = None
 
         self.setRenderHint(QPainter.RenderHint.Antialiasing)
         self.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform)
@@ -27,30 +26,7 @@ class GraphicView(QGraphicsView):
         self.setScene(self.scene)
         self.setSceneRect(0, 0, 1200, 1000)
 
-        #self.nodes = []
         self.edges = []
-        self.nodes_map = {}
-
-        # self.moveObject = MovingObject(50, 50, "C:\\Users\\Raven\\Desktop\\node.png")
-        # self.moveObject2 = MovingObject(100, 100, "C:\\Users\\Raven\\Desktop\\node11.png")
-        # self.moveObject = MovingObject(50, 50, "NodeIcons\\node1.png")
-
-        #self.node1 = NodeObject(50, 50, "NodeIcons\\node11.png", self.edges)
-        #self.node2 = NodeObject(100, 100, "NodeIcons\\node11.png", self.edges)
-
-        # self.scene.addItem(self.node1)
-        # self.scene.addItem(self.node2)
-
-        '''self.edge = EdgeObject(self.node1, self.node2)
-
-        self.nodes.extend([self.node1, self.node2])
-        self.edges.append(self.edge)
-
-        for node in self.nodes:
-            self.scene.addItem(node)
-
-        for edge in self.edges:
-            self.scene.addItem(edge)'''
 
         # Set scroll hand drag mode for panning
         self.setDragMode(QGraphicsView.DragMode.ScrollHandDrag)
@@ -122,10 +98,7 @@ class GraphicView(QGraphicsView):
         node1.neighbors.add(node2)
         node2.neighbors.add(node1)
 
-        node_object1 = next((key for key, value in self.nodes_map.items() if value == node1), None)
-        node_object2 = next((key for key, value in self.nodes_map.items() if value == node2), None)
-
-        new_edge = EdgeObject(node_object1, node_object2)
+        new_edge = EdgeObject(node1, node2)
         new_edge.setZValue(1)
         self.edges.append(new_edge)
         self.scene.addItem(new_edge)
@@ -136,74 +109,39 @@ class GraphicView(QGraphicsView):
         self.scene.removeItem(link)
         self.edges.remove(link)
 
-        print(type(link), '', type(link.node1))
-
-        node1 = self.nodes_map[link.node1]
-        node2 = self.nodes_map[link.node2]
-
-        node1.neighbors.discard(node2)
-        node2.neighbors.discard(node1)
+        link.node1.neighbors.discard(link.node2)
+        link.node2.neighbors.discard(link.node1)
 
         self.main_window.statusBar().showMessage(f'Nodes: {len(node_list)} | Edges: {len(self.edges)}')
-
-        ids = set()
-        for node in node_list:
-            for neighb in node.neighbors:
-                ids.add(neighb.key)
-            print('Node', node.key, 'neighbors:', ids)
-            ids = set()
-        print()
 
     def addNode(self, pos):
         if not node_list:
-            new_node = Node(0)
+            new_node = NodeObject(0, pos.x(), pos.y(), "NodeIcons\\node.png", self.edges)
         else:
-            new_node = Node(node_list[-1].key + 1)
+            new_node = NodeObject(node_list[-1].key + 1, pos.x(), pos.y(), "NodeIcons\\node.png", self.edges)
         node_list.append(new_node)
 
-        # Load the image and resize it
-        '''original_pixmap = QPixmap("NodeIcons\\node11.png")
-        resized_pixmap = original_pixmap.scaledToWidth(20)  # Adjust the width as needed'''
-
-        new_node_object = NodeObject(new_node.key, pos.x(), pos.y(), "NodeIcons\\node.png", self.edges)
-        print('addNode', new_node.key)
-        print(pos.x(), pos.y())
-        new_node_object.setZValue(2)
+        new_node.setZValue(2)
         # self.nodes.append(new_node_object)
-        self.scene.addItem(new_node_object)
+        self.scene.addItem(new_node)
 
         # Add text item for the number-key next to the node
-        '''text_item = QGraphicsTextItem(str(new_node.key))
-        text_item.setPos(pos.x() - 15, pos.y() - 15)  # Adjust the position as needed'''
-        # self.scene.addItem(text_item)
-        self.scene.addItem(new_node_object.graphic_key)
-
-        '''# Connect signals to update text item position when the node is moved
-        new_node_object.nodeMoved.connect(lambda x, y, text=text_item: self.updateTextItemPosition(text, x, y))'''
-
-        # self.nodes_map[new_node] = new_node_object
-        self.nodes_map[new_node_object] = new_node
+        new_node.graphic_key.setZValue(2)
+        self.scene.addItem(new_node.graphic_key)
 
         self.main_window.statusBar().showMessage(f'Nodes: {len(node_list)} | Edges: {len(self.edges)}')
 
-    def deleteNode(self, node_object):
-        # Find the corresponding Node instance in the map
-        # node = next((key for key, value in self.nodes_map.items() if value == node_object), None)
-        node = self.nodes_map[node_object]
-
+    def deleteNode(self, node):
         # Remove only the edges connected to the deleted node
         if node is not None:
             for edge in self.edges.copy():  # Use copy to avoid modifying the list during iteration
-                if edge.node1 == node_object or edge.node2 == node_object:
+                if edge.node1 == node or edge.node2 == node:
                     self.scene.removeItem(edge)
                     self.edges.remove(edge)
 
         # Remove the node from the scene and the list of nodes
-        self.scene.removeItem(node_object)
-        self.scene.removeItem(node_object.graphic_key)
-
-        # Remove the node from the map
-        del self.nodes_map[node_object]
+        self.scene.removeItem(node)
+        self.scene.removeItem(node.graphic_key)
 
         # Remove the Node instance from node_list
         node_list.remove(node)
@@ -218,21 +156,11 @@ class GraphicView(QGraphicsView):
 
         self.main_window.statusBar().showMessage(f'Nodes: {len(node_list)} | Edges: {len(self.edges)}')
 
-        ids = set()
-        for node in node_list:
-            for neighb in node.neighbors:
-                ids.add(neighb.key)
-            print('Node', node.key, 'neighbors:', ids)
-            ids = set()
-        print()
-
     def startAddingLink(self, node, pos):
-        print('startAddingLink', type(node))
         # Set the current node for linking
-        self.adding_link_node = node
+        self.source_node = node
 
         # Connect the scene's mouse press event to start the link
-        # self.sceneMousePressEvent(pos)
         self.sceneMousePressEvent(pos)
 
     def sceneMousePressEvent(self, pos):
@@ -241,35 +169,26 @@ class GraphicView(QGraphicsView):
             pos = self.mapFromScene(pos)
 
         # item = self.scene.itemAt(pos)
-        item = self.scene.itemAt(pos.x(), pos.y(), self.transform())
-        if isinstance(item, NodeObject) and item != self.adding_link_node:
+        destination_node = self.scene.itemAt(pos.x(), pos.y(), self.transform())
+        if isinstance(destination_node, NodeObject) and destination_node != self.source_node:
             # Use the item (NodeObject) directly to retrieve the associated Node
-            associated_node = self.nodes_map[item]
-            print('sceneMousePressEvent', 'self.adding_link_node', self.nodes_map[self.adding_link_node].key,
-                  'associated_node', associated_node.key)
+            # associated_node = self.nodes_map[item]
+            print('sceneMousePressEvent', 'self.adding_link_node', self.source_node.key,
+                  'associated_node', destination_node.key)
 
-            self.nodes_map[self.adding_link_node].neighbors.add(associated_node)
-            associated_node.neighbors.add(self.nodes_map[self.adding_link_node])
+            self.source_node.neighbors.add(destination_node)
+            destination_node.neighbors.add(self.source_node)
 
-            new_edge = EdgeObject(self.adding_link_node, item)
+            new_edge = EdgeObject(self.source_node, destination_node)
             self.edges.append(new_edge)
             self.scene.addItem(new_edge)
 
             self.main_window.statusBar().showMessage(f'Nodes: {len(node_list)} | Edges: {len(self.edges)}')
 
-            ids = set()
-            for node in node_list:
-                print(node.neighbors)
-                for neighb in node.neighbors:
-                    ids.add(neighb.key)
-                print('Node', node.key, 'neighbors:', ids)
-                ids = set()
-            print()
-
     def mousePressEvent(self, event):
-        if self.adding_link_node is not None:
+        if self.source_node is not None:
             self.sceneMousePressEvent(event.pos())
-            self.adding_link_node = None
+            self.source_node = None
         else:
             super().mousePressEvent(event)
 
@@ -277,7 +196,6 @@ class GraphicView(QGraphicsView):
         self.scene.clear()
         # self.nodes = []
         self.edges = []
-        self.nodes_map = {}
 
         # Reset the neighbor sets of all nodes
         for node in node_list:
@@ -286,11 +204,3 @@ class GraphicView(QGraphicsView):
         node_list.clear()
 
         self.main_window.statusBar().showMessage(f'Nodes: {len(node_list)} | Edges: {len(self.edges)}')
-
-        ids = set()
-        for node in node_list:
-            for neighb in node.neighbors:
-                ids.add(neighb.key)
-            print('Node', node.key, 'neighbors:', ids)
-            ids = set()
-        print()
