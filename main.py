@@ -1,7 +1,8 @@
 import sys
 
+from PyQt6.QtCore import Qt, QEvent
 from PyQt6.QtGui import QGuiApplication
-from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout
+from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QLabel, QStatusBar
 from PyQt6.uic.properties import QtGui
 
 from graphicView import GraphicView
@@ -42,11 +43,31 @@ class Window(QMainWindow):
         self.setCentralWidget(self.main_view)
 
         # Create the GraphicView for network visualization
-        self.graphic_view = GraphicView()
+        self.graphic_view = GraphicView(self)
         layout.addWidget(self.graphic_view)
+
+        '''# Set up the main window and status bar
+        self.statusBar = QStatusBar()
+        self.statusBar.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        self.setStatusBar(self.statusBar)
+
+        self.setFocusPolicy(Qt.FocusPolicy.ClickFocus)'''
+
+        # TODO
+        """self.info_label = QLabel(self)
+        self.info_label.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignBottom)  # Adjust alignment as needed
+        self.info_label.setStyleSheet("QLabel { color : white; }")  # Adjust style as needed
+        self.update_info_label('Test')  # Set initial text
+        self.info_label.setText('test\ntest2')"""
+        self.statusBar().showMessage('Nodes: 0 | Edges: 0')
 
         # Create main menu
         self.main_menu = create_main_menu(self)
+
+    def event(self, e):
+        if e.type() == QEvent.Type.StatusTip:
+            return True
+        return super().event(e)
 
 
 if __name__ == "__main__":

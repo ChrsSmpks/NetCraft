@@ -1,5 +1,3 @@
-import weakref
-
 from PyQt6.QtCore import QLineF, QPointF, Qt
 from PyQt6.QtWidgets import QGraphicsLineItem
 from PyQt6.QtGui import QPen, QColor
@@ -14,8 +12,8 @@ class EdgeObject(QGraphicsLineItem):
 
         self.updatePosition()
 
-        # pen = QPen(QColor("#dbcdf0"), 1)
-        self.setPen(QPen(Qt.GlobalColor.black, 2))
+        pen = QPen(QColor("#dbcdf0"), 1)
+        self.setPen(pen)
 
     def updatePosition(self):
         # Find the closest points on the nodes

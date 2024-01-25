@@ -1,6 +1,6 @@
 from PyQt6.QtCore import QTimer, QPointF, Qt
 from PyQt6.QtGui import QPainter, QPixmap
-from PyQt6.QtWidgets import QGraphicsView, QGraphicsScene, QMenu
+from PyQt6.QtWidgets import QGraphicsView, QGraphicsScene, QMenu, QGraphicsTextItem
 
 from edgeObject import EdgeObject
 from nodeObject import NodeObject
@@ -8,8 +8,10 @@ from node import Node, node_list
 
 
 class GraphicView(QGraphicsView):
-    def __init__(self):
+    def __init__(self, main_window):
         super().__init__()
+
+        self.main_window = main_window
 
         self.adding_link_node = None
 
@@ -128,6 +130,8 @@ class GraphicView(QGraphicsView):
         self.edges.append(new_edge)
         self.scene.addItem(new_edge)
 
+        self.main_window.statusBar().showMessage(f'Nodes: {len(node_list)} | Edges: {len(self.edges)}')
+
     def deleteLink(self, link):
         self.scene.removeItem(link)
         self.edges.remove(link)
@@ -140,6 +144,8 @@ class GraphicView(QGraphicsView):
         node1.neighbors.discard(node2)
         node2.neighbors.discard(node1)
 
+        self.main_window.statusBar().showMessage(f'Nodes: {len(node_list)} | Edges: {len(self.edges)}')
+
         ids = set()
         for node in node_list:
             for neighb in node.neighbors:
@@ -150,7 +156,7 @@ class GraphicView(QGraphicsView):
 
     def addNode(self, pos):
         if not node_list:
-            new_node = Node(1)
+            new_node = Node(0)
         else:
             new_node = Node(node_list[-1].key + 1)
         node_list.append(new_node)
@@ -159,13 +165,26 @@ class GraphicView(QGraphicsView):
         '''original_pixmap = QPixmap("NodeIcons\\node11.png")
         resized_pixmap = original_pixmap.scaledToWidth(20)  # Adjust the width as needed'''
 
-        new_node_object = NodeObject(pos.x(), pos.y(), "NodeIcons\\node.png", self.edges)
+        new_node_object = NodeObject(new_node.key, pos.x(), pos.y(), "NodeIcons\\node.png", self.edges)
+        print('addNode', new_node.key)
+        print(pos.x(), pos.y())
         new_node_object.setZValue(2)
         # self.nodes.append(new_node_object)
         self.scene.addItem(new_node_object)
 
+        # Add text item for the number-key next to the node
+        '''text_item = QGraphicsTextItem(str(new_node.key))
+        text_item.setPos(pos.x() - 15, pos.y() - 15)  # Adjust the position as needed'''
+        # self.scene.addItem(text_item)
+        self.scene.addItem(new_node_object.graphic_key)
+
+        '''# Connect signals to update text item position when the node is moved
+        new_node_object.nodeMoved.connect(lambda x, y, text=text_item: self.updateTextItemPosition(text, x, y))'''
+
         # self.nodes_map[new_node] = new_node_object
         self.nodes_map[new_node_object] = new_node
+
+        self.main_window.statusBar().showMessage(f'Nodes: {len(node_list)} | Edges: {len(self.edges)}')
 
     def deleteNode(self, node_object):
         # Find the corresponding Node instance in the map
@@ -181,6 +200,7 @@ class GraphicView(QGraphicsView):
 
         # Remove the node from the scene and the list of nodes
         self.scene.removeItem(node_object)
+        self.scene.removeItem(node_object.graphic_key)
 
         # Remove the node from the map
         del self.nodes_map[node_object]
@@ -195,6 +215,8 @@ class GraphicView(QGraphicsView):
         # Remove the deleted node from the neighbor sets of other nodes
         for other_node in node_list:
             other_node.neighbors.discard(node)
+
+        self.main_window.statusBar().showMessage(f'Nodes: {len(node_list)} | Edges: {len(self.edges)}')
 
         ids = set()
         for node in node_list:
@@ -233,6 +255,8 @@ class GraphicView(QGraphicsView):
             self.edges.append(new_edge)
             self.scene.addItem(new_edge)
 
+            self.main_window.statusBar().showMessage(f'Nodes: {len(node_list)} | Edges: {len(self.edges)}')
+
             ids = set()
             for node in node_list:
                 print(node.neighbors)
@@ -260,6 +284,8 @@ class GraphicView(QGraphicsView):
             node.neighbors.clear()
 
         node_list.clear()
+
+        self.main_window.statusBar().showMessage(f'Nodes: {len(node_list)} | Edges: {len(self.edges)}')
 
         ids = set()
         for node in node_list:
