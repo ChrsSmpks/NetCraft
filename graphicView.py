@@ -116,8 +116,10 @@ class GraphicView(QGraphicsView):
 
     def addNode(self, pos):
         if not node_list:
+            print(self.edges)
             new_node = NodeObject(0, pos.x(), pos.y(), "NodeIcons\\node.png", self.edges)
         else:
+            print(self.edges)
             new_node = NodeObject(node_list[-1].key + 1, pos.x(), pos.y(), "NodeIcons\\node.png", self.edges)
         node_list.append(new_node)
 
@@ -147,7 +149,6 @@ class GraphicView(QGraphicsView):
         node_list.remove(node)
 
         # Clear the edges list from the deleted node
-        # node.edges = []
         node.neighbors.clear()
 
         # Remove the deleted node from the neighbor sets of other nodes
@@ -172,9 +173,6 @@ class GraphicView(QGraphicsView):
         destination_node = self.scene.itemAt(pos.x(), pos.y(), self.transform())
         if isinstance(destination_node, NodeObject) and destination_node != self.source_node:
             # Use the item (NodeObject) directly to retrieve the associated Node
-            # associated_node = self.nodes_map[item]
-            print('sceneMousePressEvent', 'self.adding_link_node', self.source_node.key,
-                  'associated_node', destination_node.key)
 
             self.source_node.neighbors.add(destination_node)
             destination_node.neighbors.add(self.source_node)
@@ -193,8 +191,11 @@ class GraphicView(QGraphicsView):
             super().mousePressEvent(event)
 
     def clearAll(self):
+        from fileIO import save_dialog
+        if not save_dialog(self.main_window, 0):
+            return 0
+
         self.scene.clear()
-        # self.nodes = []
         self.edges = []
 
         # Reset the neighbor sets of all nodes

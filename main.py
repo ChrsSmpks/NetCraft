@@ -1,12 +1,12 @@
 import sys
 
-from PyQt6.QtCore import Qt, QEvent
+from PyQt6.QtCore import QEvent
 from PyQt6.QtGui import QGuiApplication
-from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QLabel, QStatusBar
-from PyQt6.uic.properties import QtGui
+from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout
 
 from graphicView import GraphicView
 from mainMenu import create_main_menu
+from fileIO import save_dialog
 
 
 class Window(QMainWindow):
@@ -46,19 +46,7 @@ class Window(QMainWindow):
         self.graphic_view = GraphicView(self)
         layout.addWidget(self.graphic_view)
 
-        '''# Set up the main window and status bar
-        self.statusBar = QStatusBar()
-        self.statusBar.setFocusPolicy(Qt.FocusPolicy.NoFocus)
-        self.setStatusBar(self.statusBar)
-
-        self.setFocusPolicy(Qt.FocusPolicy.ClickFocus)'''
-
-        # TODO
-        """self.info_label = QLabel(self)
-        self.info_label.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignBottom)  # Adjust alignment as needed
-        self.info_label.setStyleSheet("QLabel { color : white; }")  # Adjust style as needed
-        self.update_info_label('Test')  # Set initial text
-        self.info_label.setText('test\ntest2')"""
+        # Create status bar to display number of nodes and edges
         self.statusBar().showMessage('Nodes: 0 | Edges: 0')
 
         # Create main menu
@@ -68,6 +56,10 @@ class Window(QMainWindow):
         if e.type() == QEvent.Type.StatusTip:
             return True
         return super().event(e)
+
+    def closeEvent(self, event):
+        if not save_dialog(self, 1):
+            event.ignore()
 
 
 if __name__ == "__main__":

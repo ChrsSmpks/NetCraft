@@ -1,11 +1,12 @@
 import networkx as nx
 from PyQt6.QtCore import QPointF
 from PyQt6.QtGui import QAction
-from PyQt6.QtWidgets import QMenu
+from PyQt6.QtWidgets import QMenu, QFileDialog
 from networkx import fruchterman_reingold_layout
 
 from netGenerationDialog import NetworkGenerationDialog
 from nodeObject import node_list
+from fileIO import save_graph, load_graph
 
 
 def create_main_menu(window):
@@ -38,6 +39,9 @@ def create_file_menu(main_menu, window):
 
     # Connect the created actions
     generate_action.triggered.connect(lambda: generate_net(window))
+    open_action.triggered.connect(lambda: open_net(window))
+    save_action.triggered.connect(lambda: save_net(window))
+    exit_action.triggered.connect(lambda: exit_app(window))
 
     # Add the actions to File submenu
     file_submenu.addAction(generate_action)
@@ -64,7 +68,8 @@ def generate_net(window):
         density = user_input['density']
 
         # Clear existing nodes and edges
-        window.graphic_view.clearAll()
+        if not window.graphic_view.clearAll() and node_list:
+            return
 
         # Generate Erdős-Rényi graph
         erdos_renyi_graph = nx.erdos_renyi_graph(nodes, density)
@@ -96,3 +101,25 @@ def generate_net(window):
         # Update the view
         #window.graphic_view.fitInView(window.graphic_view.scene.sceneRect(), Qt.AspectRatioMode.KeepAspectRatio)
         window.graphic_view.updateView()
+
+
+def open_net(window):
+    options = QFileDialog.Option.ReadOnly
+    open_path, _ = QFileDialog.getOpenFileName(window, "Open Graph File", "", "JSON Files (*.json);;All Files (*)",
+                                               options=options)
+
+    if open_path:
+        load_graph(window.graphic_view, open_path)  # Adjust based on your project structure
+
+
+def save_net(window):
+    save_path, _ = QFileDialog.getSaveFileName(window, "Save Graph File", "", "JSON Files (*.json);;All Files (*)")
+
+    if save_path:
+        save_graph(window, save_path)  # Adjust based on your project structure
+
+
+def exit_app(window):
+    from fileIO import save_dialog
+    if save_dialog(window, 1):
+        window.close()
