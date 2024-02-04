@@ -116,10 +116,8 @@ class GraphicView(QGraphicsView):
 
     def addNode(self, pos):
         if not node_list:
-            print(self.edges)
             new_node = NodeObject(0, pos.x(), pos.y(), "NodeIcons\\node.png", self.edges)
         else:
-            print(self.edges)
             new_node = NodeObject(node_list[-1].key + 1, pos.x(), pos.y(), "NodeIcons\\node.png", self.edges)
         node_list.append(new_node)
 

@@ -7,6 +7,7 @@ from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout
 from graphicView import GraphicView
 from mainMenu import create_main_menu
 from fileIO import save_dialog
+from nodeObject import node_list
 
 
 class Window(QMainWindow):
@@ -58,7 +59,7 @@ class Window(QMainWindow):
         return super().event(e)
 
     def closeEvent(self, event):
-        if not save_dialog(self, 1):
+        if not save_dialog(self, 1) and node_list:
             event.ignore()
 
 
