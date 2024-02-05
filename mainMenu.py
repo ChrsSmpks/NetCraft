@@ -9,6 +9,7 @@ from netGenerationDialog import NetworkGenerationDialog
 from nodeObject import node_list
 from fileIO import save_graph, load_graph
 from spanningEdgeBetweenness import spanEdgeBetw
+from treeC import treeC
 
 
 def create_main_menu(window):
@@ -60,12 +61,15 @@ def create_centralities_menu(main_menu, window):
 
     # Create actions for Centralities submenu
     spanning_edge_btw = QAction('Spanning Edge Betweenness', centralities_submenu)
+    treec = QAction('TreeC', centralities_submenu)
 
     # Connect the created actions
     spanning_edge_btw.triggered.connect(lambda: spanEdgeBetw(window, node_list))
+    treec.triggered.connect(lambda: treeC(window, node_list))
 
     # Add the actions to Centralities submenu
     centralities_submenu.addAction(spanning_edge_btw)
+    centralities_submenu.addAction(treec)
 
     return centralities_submenu
 
@@ -120,6 +124,8 @@ def open_net(window):
                                                options=options)
 
     if open_path:
+        if not window.graphic_view.clearAll() and node_list:
+            return
         load_graph(window.graphic_view, open_path)  # Adjust based on your project structure
 
 
