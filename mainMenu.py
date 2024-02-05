@@ -5,6 +5,7 @@ from PyQt6.QtGui import QAction
 from PyQt6.QtWidgets import QMenu, QFileDialog
 from networkx import fruchterman_reingold_layout
 
+from fastTreeC import fastTreeC
 from netGenerationDialog import NetworkGenerationDialog
 from nodeObject import node_list
 from fileIO import save_graph, load_graph
@@ -62,14 +63,17 @@ def create_centralities_menu(main_menu, window):
     # Create actions for Centralities submenu
     spanning_edge_btw = QAction('Spanning Edge Betweenness', centralities_submenu)
     treec = QAction('TreeC', centralities_submenu)
+    fastTree = QAction('Fast-TreeC', centralities_submenu)
 
     # Connect the created actions
     spanning_edge_btw.triggered.connect(lambda: spanEdgeBetw(window, node_list))
     treec.triggered.connect(lambda: treeC(window, node_list))
+    fastTree.triggered.connect(lambda: fastTreeC(window, node_list))
 
     # Add the actions to Centralities submenu
     centralities_submenu.addAction(spanning_edge_btw)
     centralities_submenu.addAction(treec)
+    centralities_submenu.addAction(fastTree)
 
     return centralities_submenu
 

@@ -47,8 +47,14 @@ def treeC(window, node_list):
 
     # Approximate zi by solving Lzi = Y[:, i]
     for i in range(k):
-        # print(Y[i, :])
-        zi = np.linalg.solve(laplacian_matrix, Y[i, :])
+        try:
+            zi = np.linalg.solve(laplacian_matrix, Y[i, :])
+        except np.linalg.LinAlgError as e:
+            if 'Singular matrix' in str(e):
+                # If matrix is singular use a least squares solution
+                zi = np.linalg.lstsq(laplacian_matrix, Y[i, :], rcond=None)[0]
+            else:
+                print('Error:', e)
         Z = np.vstack((Z, zi))
         '''if i == 0 or i == 1:
             print('line', i)
