@@ -74,4 +74,7 @@ def spanEdgeBetw(window, node_list):
         # Store the result for the edge
         spanning_betweenness_for_edges[f'({edge.node1.key},{edge.node2.key})'] = round(trees_for_edges / cofactor, 4)
 
-    print(spanning_betweenness_for_edges)
+    # print(spanning_betweenness_for_edges)
+    window.side_table.update_table(spanning_betweenness_for_edges)
+    window.side_label.setText('Algorithm: Spanning Edge Betweenness')
+    window.dock_widget.setHidden(False)

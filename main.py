@@ -1,9 +1,10 @@
 import sys
 
-from PyQt6.QtCore import QEvent
+from PyQt6.QtCore import QEvent, Qt
 from PyQt6.QtGui import QGuiApplication
-from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout
+from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QLabel, QDockWidget
 
+from centralityTable import CentralityTable
 from graphicView import GraphicView
 from mainMenu import create_main_menu
 from fileIO import save_dialog
@@ -52,6 +53,29 @@ class Window(QMainWindow):
 
         # Create main menu
         self.main_menu = create_main_menu(self)
+
+        # Create side dock for Centrality info
+
+        # Create a side widget
+        side_widget = QWidget(self)
+        side_layout = QVBoxLayout(side_widget)
+
+        # Create a label to display info about the algorithm used
+        self.side_label = QLabel(side_widget)
+
+        # Create an empty table to display centralities
+        self.side_table = CentralityTable({})
+
+        side_layout.addWidget(self.side_label)
+        side_layout.addWidget(self.side_table)
+
+        # Create a dock widget
+        self.dock_widget = QDockWidget('Centralities', self)
+        self.dock_widget.setWidget(side_widget)
+        self.dock_widget.setFeatures(QDockWidget.DockWidgetFeature.DockWidgetClosable)
+        self.dock_widget.setHidden(True)
+
+        self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.dock_widget, Qt.Orientation.Vertical)
 
     def event(self, e):
         if e.type() == QEvent.Type.StatusTip:

@@ -49,4 +49,7 @@ def fastTreeC(window, node_list):
     for edge in R:
         R[edge] = round(R[edge], 4)
 
-    print(R)
+    # print(R)
+    window.side_table.update_table(R)
+    window.side_label.setText('Algorithm: Fast-TreeC')
+    window.dock_widget.setHidden(False)

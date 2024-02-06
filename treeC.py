@@ -71,5 +71,8 @@ def treeC(window, node_list):
         # R[i] = np.linalg.norm(Z[:, u] - Z[:, v])**2
         R[f'({u},{v})'] = round(np.linalg.norm(Z[:, u] - Z[:, v])**2, 4)
 
-    print()
-    print(R)
+    '''print()
+    print(R)'''
+    window.side_table.update_table(R)
+    window.side_label.setText('Algorithm: TreeC')
+    window.dock_widget.setHidden(False)
