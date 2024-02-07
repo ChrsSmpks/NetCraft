@@ -4,6 +4,7 @@ from PyQt6.QtWidgets import QGraphicsView, QGraphicsScene, QMenu
 
 from edgeObject import EdgeObject
 from nodeObject import NodeObject, node_list
+from style_sheets import context_menu_style
 
 
 class GraphicView(QGraphicsView):
@@ -64,6 +65,7 @@ class GraphicView(QGraphicsView):
 
     def showEmptySpaceContextMenu(self, pos):
         context_menu = QMenu(self)
+        context_menu.setStyleSheet(context_menu_style)
 
         add_node_action = context_menu.addAction("Add Node")
         add_node_action.triggered.connect(lambda: self.addNode(pos))
@@ -75,6 +77,7 @@ class GraphicView(QGraphicsView):
 
     def showNodeContextMenu(self, node, pos):
         context_menu = QMenu(self)
+        context_menu.setStyleSheet(context_menu_style)
 
         delete_node_action = context_menu.addAction("Delete Node")
         delete_node_action.triggered.connect(lambda: self.deleteNode(node))
@@ -88,6 +91,7 @@ class GraphicView(QGraphicsView):
 
     def showLinkContextMenu(self, link, pos):
         context_menu = QMenu(self)
+        context_menu.setStyleSheet(context_menu_style)
 
         delete_link_action = context_menu.addAction("Delete Link")
         delete_link_action.triggered.connect(lambda: self.deleteLink(link))

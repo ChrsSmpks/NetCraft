@@ -9,6 +9,7 @@ from graphicView import GraphicView
 from mainMenu import create_main_menu
 from fileIO import save_dialog
 from nodeObject import node_list
+from style_sheets import main_page_style, graphic_view_style, side_style, table_style
 
 
 class Window(QMainWindow):
@@ -39,6 +40,7 @@ class Window(QMainWindow):
 
         # Create the main widget and layout
         self.main_view = QWidget(self)
+        # self.main_view.setStyleSheet(main_page_style)
         layout = QVBoxLayout(self.main_view)
 
         # Set the main widget as the central widget
@@ -46,6 +48,7 @@ class Window(QMainWindow):
 
         # Create the GraphicView for network visualization
         self.graphic_view = GraphicView(self)
+        self.graphic_view.setStyleSheet(graphic_view_style)
         layout.addWidget(self.graphic_view)
 
         # Create status bar to display number of nodes and edges
@@ -58,6 +61,8 @@ class Window(QMainWindow):
 
         # Create a side widget
         side_widget = QWidget(self)
+
+        side_widget.setStyleSheet(side_style)
         side_layout = QVBoxLayout(side_widget)
 
         # Create a label to display info about the algorithm used
@@ -65,6 +70,7 @@ class Window(QMainWindow):
 
         # Create an empty table to display centralities
         self.side_table = CentralityTable({})
+        self.side_table.setStyleSheet(table_style)
 
         side_layout.addWidget(self.side_label)
         side_layout.addWidget(self.side_table)

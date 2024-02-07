@@ -10,6 +10,7 @@ from netGenerationDialog import NetworkGenerationDialog
 from nodeObject import node_list
 from fileIO import save_graph, load_graph
 from spanningEdgeBetweenness import spanEdgeBetw
+from style_sheets import menu_style
 from treeC import treeC
 
 
@@ -26,7 +27,7 @@ def create_main_menu(window):
     main_menu.addMenu(centralities_menu)
 
     # Styling
-    # main_menu.setStyleSheet(menu_style)
+    main_menu.setStyleSheet(menu_style)
 
     return main_menu
 
