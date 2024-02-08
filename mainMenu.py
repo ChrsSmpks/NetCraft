@@ -15,6 +15,16 @@ from treeC import treeC
 
 
 def create_main_menu(window):
+    '''
+    Creates the main menu of the app which includes File and Centralities submenus
+
+    Parameters:
+        - window (QMainWindow): The main window of the app
+
+    Returns:
+        - main_menu (QMenuBar): The created menu of the app
+    '''
+
     # Create main menu
     main_menu = window.menuBar()
 
@@ -33,6 +43,17 @@ def create_main_menu(window):
 
 
 def create_file_menu(main_menu, window):
+    '''
+    Creates the file submenu containing Generate Network, Open Network, Save Network, Exit actions
+
+    Parameters:
+        - window (QMainWindow): The main window of the app
+        - main_menu (QMenuBar): The created menu of the app
+
+    Returns:
+        - file_submenu (QMenu): The created File menu
+    '''
+
     # Create File submenu
     file_submenu = QMenu('File', main_menu)
 
@@ -58,6 +79,17 @@ def create_file_menu(main_menu, window):
 
 
 def create_centralities_menu(main_menu, window):
+    '''
+    Creates the centralities submenu containing Spanning Edge Betweenness, TreeC, Fast-TreeC algorithms
+
+    Parameters:
+        - window (QMainWindow): The main window of the app
+        - main_menu (QMenuBar): The created menu of the app
+
+    Returns:
+        - centralities_submenu (QMenu): The created File menu
+    '''
+
     # Create Centralities submenu
     centralities_submenu = QMenu('Centralities', main_menu)
 
@@ -80,6 +112,13 @@ def create_centralities_menu(main_menu, window):
 
 
 def generate_net(window):
+    '''
+    Generates a random Erdos - Renyi graph in a Fruchterman_Reingold based on the user input of number of nodes and density
+
+    Parameters:
+        - window (QMainWindow): The main window of the app
+    '''
+
     dialog = NetworkGenerationDialog()
     user_input = dialog.get_user_input()
 
@@ -124,6 +163,14 @@ def generate_net(window):
 
 
 def open_net(window):
+    '''
+    Creates a QFileDialog to browse the file system and select the json file where network info is stored.
+    Then calls load_graph to generate the graph saved in the specified json file
+
+    Parameters:
+        - window (QMainWindow): The main window of the app
+    '''
+
     options = QFileDialog.Option.ReadOnly
     open_path, _ = QFileDialog.getOpenFileName(window, "Open Graph File", "", "JSON Files (*.json);;All Files (*)",
                                                options=options)
@@ -135,6 +182,14 @@ def open_net(window):
 
 
 def save_net(window):
+    '''
+    Creates a QFileDialog to browse the file system and select save location for the json file.
+    Then calls save_graph to save the graph saved in the specified json file
+
+    Parameters:
+        - window (QMainWindow): The main window of the app
+    '''
+
     save_path, _ = QFileDialog.getSaveFileName(window, "Save Graph File", "", "JSON Files (*.json);;All Files (*)")
 
     if save_path:

@@ -4,32 +4,54 @@ from PyQt6.QtGui import QPixmap
 
 
 class NodeObject(QGraphicsPixmapItem):
+    '''
+    Custom QGraphicsPixmapItem class representing a node.
+
+    Attributes:
+        - key (int): Node's key
+        - neiboghbors (set of NodeObject): Stores all neighbors of the node
+        - edges (list of EdgeObject): List to keep track of connected edges
+        - graphic_key (QGraphicsTextItem): For visual representation of the key
+    '''
     def __init__(self, key, x, y, image_path, edges):
+        '''
+        Initialize a new instance of NodeObject
+
+        Parameters:
+            - key (int): Node's key
+            - x (float): x coordinate of the node
+            - y (float): y coordinate of the node
+            - image_path (str): file path of the image which represents the node
+            - edges (list of EdgeObject): List to keep track of connected edges
+        '''
         super().__init__()
 
         self.key = key
         self.neighbors = set()
 
-        pixmap = QPixmap(image_path)  # Load your custom image
-        #pixmap.scaledToWidth(5)
+        pixmap = QPixmap(image_path)  # Load custom node image
         self.setPixmap(pixmap)
 
         self.setPos(x, y)
-        # self.setBrush(Qt.GlobalColor.green)
         self.setAcceptHoverEvents(True)
 
-        self.edges = edges  # List to keep track of connected edges
+        self.edges = edges
 
         # Add text item for the number-key next to the node
         self.graphic_key = QGraphicsTextItem(str(self.key))
         self.graphic_key.setPos(x - 15, y - 15)  # Adjust the position as needed
 
-    # mouse click event
     def mousePressEvent(self, event):
         if event.button() == Qt.MouseButton.RightButton:
             event.accept()
 
     def mouseMoveEvent(self, event):
+        '''
+        Event handler. Updates the visual position of the node and its key.
+
+        Parameters:
+            - event(QQGraphicsSceneMouseEvent): The mouse event object
+        '''
         orig_cursor_position = event.lastScenePos()
         updated_cursor_position = event.scenePos()
 
@@ -46,8 +68,6 @@ class NodeObject(QGraphicsPixmapItem):
         # Update the visual position of the key
         self.graphic_key.setPos(self.x() - 15, self.y() - 15)
 
-    def mouseReleaseEvent(self, event):
-        print('x: {0}, y: {1}'.format(self.pos().x(), self.pos().y()))
 
-
+# List of NodeObject used in other files
 node_list = []

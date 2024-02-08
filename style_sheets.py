@@ -1,5 +1,5 @@
 main_page_style = '''
-                background-color: #2d2d2d;
+                background-color: #1e1e1e;
                 color: #C0C0C0;
                 '''
 

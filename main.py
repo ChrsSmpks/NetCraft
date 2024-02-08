@@ -1,7 +1,7 @@
 import sys
 
 from PyQt6.QtCore import QEvent, Qt
-from PyQt6.QtGui import QGuiApplication
+from PyQt6.QtGui import QGuiApplication, QIcon
 from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QLabel, QDockWidget
 
 from centralityTable import CentralityTable
@@ -13,14 +13,28 @@ from style_sheets import main_page_style, graphic_view_style, side_style, table_
 
 
 class Window(QMainWindow):
+    '''
+    Custom QMainWindow class, the main window of the application
+
+    Attributes:
+        - main_view (QWidget): The central widget of the window
+        - graphic_view (GraphicView): Are to visually display the graph
+        - main_menu (QMenuBar): The main menu of the app
+        - side_label (QLabel): Label of the dock to display the name of the used algorithm
+        - side_table (CentralityTable): The table of the dock to display the centrality of each edge
+        - dock_widget (QDockWidget): Dock which contains side_label and side_table
+    '''
 
     def __init__(self):
+        '''
+        Initialize a new instance of Window
+        '''
+
         super(Window, self).__init__()
 
         # Set window properties
         self.setWindowTitle('NetCraft Insight')
-        #self.setWindowIcon(QtGui.QIcon(logo_path))
-        #self.resize(960, 720)
+        self.setWindowIcon(QIcon('Icons\\logo.png'))
 
         # Get the primary screen from QGuiApplication
         screen = QGuiApplication.primaryScreen()
@@ -40,7 +54,7 @@ class Window(QMainWindow):
 
         # Create the main widget and layout
         self.main_view = QWidget(self)
-        # self.main_view.setStyleSheet(main_page_style)
+        self.main_view.setStyleSheet(main_page_style)
         layout = QVBoxLayout(self.main_view)
 
         # Set the main widget as the central widget
@@ -84,11 +98,23 @@ class Window(QMainWindow):
         self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.dock_widget, Qt.Orientation.Vertical)
 
     def event(self, e):
+        '''
+        Event handler. Doesn't allow StatusTip to change the status bar
+
+        Parameters:
+             - e (QEvent): Triggered event
+        '''
         if e.type() == QEvent.Type.StatusTip:
             return True
         return super().event(e)
 
     def closeEvent(self, event):
+        '''
+        Handles close event. Displays dialog to save the graph before closing.
+
+        Parameters:
+             - event (QEvent): Triggered event
+        '''
         if not save_dialog(self, 1) and node_list:
             event.ignore()
 

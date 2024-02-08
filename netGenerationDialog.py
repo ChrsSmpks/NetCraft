@@ -2,7 +2,21 @@ from PyQt6.QtWidgets import QDialog, QVBoxLayout, QLabel, QLineEdit, QDialogButt
 
 
 class NetworkGenerationDialog(QDialog):
+    '''
+    Custom QDialog class allowing the generation of a graph with properties specified by user input.
+
+    Attributes:
+        - layout (QVBoxLayout): The layout of the widget
+        - label_nodes (QLabel): Text prompting input of node number of the graph
+        - edit_nodes (QLineEdit): Input space for the node number
+        - label_density (QLabel): Text prompting input of density of the graph
+        - edit_density (QLineEdit): Input space for the density
+        - button_box (QDialogButtonBox): confirmation button
+    '''
     def __init__(self):
+        '''
+        Initialize a new instance of NodeObject
+        '''
         super(NetworkGenerationDialog, self).__init__()
 
         self.setWindowTitle('Network Properties')
@@ -30,13 +44,17 @@ class NetworkGenerationDialog(QDialog):
             self.accept()
 
     def validate_input(self):
+        '''
+        Validates user input
+
+        Returns:
+            - True: If input is valid
+            - False: Otherwise
+        '''
         nodes_text = self.edit_nodes.text()
         density_text = self.edit_density.text()
 
         if not nodes_text or not density_text:
-            """QMessageBox.warning(self, 'Invalid Input',
-                                'Please enter values for both number of nodes and network density.')
-            return False"""
             return True
 
         try:
@@ -54,6 +72,13 @@ class NetworkGenerationDialog(QDialog):
         return True
 
     def get_user_input(self):
+        '''
+        Gets user input for the number of notes and density of the graph to be generated
+
+        Returns:
+             - dictionary: Dictionary with keys nodes and density as specified by user input
+             - None: If dialog was not accepted
+        '''
         if self.exec() == QDialog.DialogCode.Accepted:
             return {
                 'nodes': int(self.edit_nodes.text()) if self.edit_nodes.text() else 0,
