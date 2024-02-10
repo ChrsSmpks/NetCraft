@@ -31,6 +31,7 @@ class GraphicView(QGraphicsView):
         self.main_window = main_window
 
         self.source_node = None
+        self.scene_pos = None
 
         self.setRenderHint(QPainter.RenderHint.Antialiasing)
         self.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform)
@@ -119,9 +120,7 @@ class GraphicView(QGraphicsView):
         delete_node_action.triggered.connect(lambda: self.deleteNode(node))
 
         add_link_action = context_menu.addAction("Add Link")
-        add_link_action.triggered.connect(lambda: self.startAddingLink(node, pos))
-
-        # You can add more actions as needed for nodes
+        add_link_action.triggered.connect(lambda: self.startAddingLink(node))
 
         context_menu.exec(self.mapToGlobal(pos))
 
@@ -183,14 +182,23 @@ class GraphicView(QGraphicsView):
             - pos (QPointF): position to add the node
         '''
 
-        if not node_list:
-            new_node = NodeObject(0, pos.x(), pos.y(), "Icons\\node.png", self.edges)
+        # Convert the cursor position to scene coordinates
+        if isinstance(pos, QPointF):
+            scene_pos = self.mapToScene(pos.toPoint())
         else:
-            new_node = NodeObject(node_list[-1].key + 1, pos.x(), pos.y(), "Icons\\node.png", self.edges)
+            scene_pos = self.mapToScene(pos)
+
+        # If not already in scene coordinates, transform the position
+        if not self.main_window.graphic_view.transform().isIdentity():
+            scene_pos = self.main_window.graphic_view.mapToScene(pos)
+
+        if not node_list:
+            new_node = NodeObject(0, scene_pos.x(), scene_pos.y(), "Icons\\node.png", self.edges)
+        else:
+            new_node = NodeObject(node_list[-1].key + 1, scene_pos.x(), scene_pos.y(), "Icons\\node.png", self.edges)
         node_list.append(new_node)
 
         new_node.setZValue(2)
-        # self.nodes.append(new_node_object)
         self.scene.addItem(new_node)
 
         # Add text item for the number-key next to the node
@@ -232,20 +240,16 @@ class GraphicView(QGraphicsView):
         self.main_window.statusBar().showMessage(f'Nodes: {len(node_list)} | Edges: {len(self.edges)}')
         self.main_window.saved = False
 
-    def startAddingLink(self, node, pos):
+    def startAddingLink(self, node):
         '''
         Starts adding a link between 2 nodes. Sets the source node and waits for the second one to be clicked
 
         Parameters:
              - node (NodeObject): First of the 2 nodes to add a link
-             - pos (QPointF)
         '''
 
         # Set the current node for linking
         self.source_node = node
-
-        # Connect the scene's mouse press event to start the link
-        # self.sceneMousePressEvent(pos)
 
     def sceneMousePressEvent(self, pos):
         '''
@@ -254,10 +258,6 @@ class GraphicView(QGraphicsView):
         Parameters:
             pos pos (QPointF): Position of the destination
         '''
-
-        if isinstance(pos, QPointF):
-            # Convert scene coordinates to view coordinates
-            pos = self.mapFromScene(pos)
 
         destination_node = self.scene.itemAt(pos.x(), pos.y(), self.transform())
         if isinstance(destination_node, NodeObject) and destination_node != self.source_node:
@@ -280,7 +280,12 @@ class GraphicView(QGraphicsView):
              - event (QMouseEvent)
         '''
         if self.source_node is not None:
-            self.sceneMousePressEvent(event.pos())
+            scene_pos = self.mapToScene(event.pos())
+
+            if not self.main_window.graphic_view.transform().isIdentity():
+                scene_pos = self.main_window.graphic_view.mapToScene(event.pos())
+
+            self.sceneMousePressEvent(scene_pos)
             self.source_node = None
         else:
             super().mousePressEvent(event)
