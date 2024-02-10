@@ -156,6 +156,7 @@ class GraphicView(QGraphicsView):
         self.scene.addItem(new_edge)
 
         self.main_window.statusBar().showMessage(f'Nodes: {len(node_list)} | Edges: {len(self.edges)}')
+        self.main_window.saved = False
 
     def deleteLink(self, link):
         '''
@@ -172,6 +173,7 @@ class GraphicView(QGraphicsView):
         link.node2.neighbors.discard(link.node1)
 
         self.main_window.statusBar().showMessage(f'Nodes: {len(node_list)} | Edges: {len(self.edges)}')
+        self.main_window.saved = False
 
     def addNode(self, pos):
         '''
@@ -196,6 +198,7 @@ class GraphicView(QGraphicsView):
         self.scene.addItem(new_node.graphic_key)
 
         self.main_window.statusBar().showMessage(f'Nodes: {len(node_list)} | Edges: {len(self.edges)}')
+        self.main_window.saved = False
 
     def deleteNode(self, node):
         '''
@@ -227,6 +230,7 @@ class GraphicView(QGraphicsView):
             other_node.neighbors.discard(node)
 
         self.main_window.statusBar().showMessage(f'Nodes: {len(node_list)} | Edges: {len(self.edges)}')
+        self.main_window.saved = False
 
     def startAddingLink(self, node, pos):
         '''
@@ -265,6 +269,7 @@ class GraphicView(QGraphicsView):
             self.scene.addItem(new_edge)
 
             self.main_window.statusBar().showMessage(f'Nodes: {len(node_list)} | Edges: {len(self.edges)}')
+            self.main_window.saved = False
 
     def mousePressEvent(self, event):
         '''
@@ -288,7 +293,7 @@ class GraphicView(QGraphicsView):
             - 0: If user chose Cancel option in the dialog that pops up
         '''
         from fileIO import save_dialog
-        if not save_dialog(self.main_window, 0):
+        if not self.main_window.saved and not save_dialog(self.main_window, 0):
             return 0
 
         self.scene.clear()

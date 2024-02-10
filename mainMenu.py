@@ -178,7 +178,7 @@ def open_net(window):
     if open_path:
         if not window.graphic_view.clearAll() and node_list:
             return
-        load_graph(window.graphic_view, open_path)  # Adjust based on your project structure
+        load_graph(window, open_path)  # Adjust based on your project structure
 
 
 def save_net(window):

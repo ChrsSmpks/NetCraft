@@ -52,6 +52,9 @@ class Window(QMainWindow):
         # Set the position
         self.move(x, y-20)
 
+        # Variable to indicate if the current graph has been saved
+        self.saved = False
+
         # Create the main widget and layout
         self.main_view = QWidget(self)
         self.main_view.setStyleSheet(main_page_style)
@@ -81,6 +84,7 @@ class Window(QMainWindow):
 
         # Create a label to display info about the algorithm used
         self.side_label = QLabel(side_widget)
+        self.side_label.setStyleSheet('color: white;')
 
         # Create an empty table to display centralities
         self.side_table = CentralityTable({})
@@ -115,8 +119,8 @@ class Window(QMainWindow):
         Parameters:
              - event (QEvent): Triggered event
         '''
-        if not save_dialog(self, 1) and node_list:
-            event.ignore()
+        if not self.saved and not save_dialog(self, 1) and node_list:
+                event.ignore()
 
 
 if __name__ == "__main__":

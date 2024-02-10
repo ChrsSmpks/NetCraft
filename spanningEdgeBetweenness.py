@@ -77,6 +77,10 @@ def spanEdgeBetw(window, node_list):
           rows u and v and columns u and v
         - The spanning betweenness for each edge equals to MSTs containing the edge / total MSTs
     '''
+
+    if not node_list:
+        return
+
     laplacian_matrix = get_laplacian_matrix(window.graphic_view.edges, node_list)
 
     cofactor = np.linalg.det(laplacian_matrix[1:, 1:])

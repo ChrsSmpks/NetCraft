@@ -25,15 +25,17 @@ def save_graph(window, save_path):
     with open(save_path, 'w') as json_file:
         json.dump(graph_data, json_file, indent=2)
 
+    window.saved = True
 
-def load_graph(graphic_view, open_path):
+
+def load_graph(window, open_path):
     '''
     Loads the graph from the specified json file
     json contains nodes: a list in which every element represents a node and stores its key and its x, y coordinates
     and edges: a list in which every element represents an edge in the form [node1_key, node2_key]
 
     Parameters:
-        - graphic_view (QGraphicsView): The graphic view of the window where the graph is displayed
+        - window (QMainWindow): The main window of the app
         - open_path (str): The path where the json file is stored
 
     Returns:
@@ -49,14 +51,16 @@ def load_graph(graphic_view, open_path):
 
         # Create nodes
         for node in nodes_data:
-            graphic_view.addNode(QPointF(node['x'], node['y']))
+            window.graphic_view.addNode(QPointF(node['x'], node['y']))
 
         # Create edges
         for edge_data in edges_data:
             if len(edge_data) == 2:
                 node1 = node_list[edge_data[0]]
                 node2 = node_list[edge_data[1]]
-                graphic_view.addLink(node1, node2)
+                window.graphic_view.addLink(node1, node2)
+
+        window.saved = True
 
         return node_list
 

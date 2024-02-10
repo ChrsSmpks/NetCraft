@@ -22,6 +22,9 @@ def fastTreeC(window, node_list):
             Compute R(e) = R(e) + ||z(u) - z(v)||_2^2, R(e) is equivalent to the spanning betweenness centrality of the edge e
     '''
 
+    if not node_list:
+        return
+
     # Compute Laplacian matrix L
     L = get_laplacian_matrix(window.graphic_view.edges, node_list)
 

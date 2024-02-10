@@ -49,6 +49,9 @@ def treeC(window, node_list):
           spanning betweenness centrality of the edge e
     '''
 
+    if not node_list:
+        return
+
     # Initialize matrices and Laplacian matrix
     Z = np.empty((0, len(node_list)))
     laplacian_matrix = get_laplacian_matrix(window.graphic_view.edges, node_list)

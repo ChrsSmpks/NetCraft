@@ -1,6 +1,6 @@
 from PyQt6.QtCore import QPointF, Qt
 from PyQt6.QtWidgets import QGraphicsPixmapItem, QGraphicsTextItem
-from PyQt6.QtGui import QPixmap
+from PyQt6.QtGui import QPixmap, QColor
 
 
 class NodeObject(QGraphicsPixmapItem):
@@ -39,6 +39,7 @@ class NodeObject(QGraphicsPixmapItem):
 
         # Add text item for the number-key next to the node
         self.graphic_key = QGraphicsTextItem(str(self.key))
+        self.graphic_key.setDefaultTextColor(QColor('white'))
         self.graphic_key.setPos(x - 15, y - 15)  # Adjust the position as needed
 
     def mousePressEvent(self, event):
