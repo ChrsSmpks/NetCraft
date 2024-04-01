@@ -11,6 +11,7 @@ from nodeObject import node_list
 from fileIO import save_graph, load_graph
 from spanningEdgeBetweenness import spanEdgeBetw
 from style_sheets import menu_style
+from tgt import tgt
 from treeC import treeC
 
 
@@ -97,16 +98,19 @@ def create_centralities_menu(main_menu, window):
     spanning_edge_btw = QAction('Spanning Edge Betweenness', centralities_submenu)
     treec = QAction('TreeC', centralities_submenu)
     fastTree = QAction('Fast-TreeC', centralities_submenu)
+    _tgt = QAction('TGT', centralities_submenu)
 
     # Connect the created actions
     spanning_edge_btw.triggered.connect(lambda: spanEdgeBetw(window, node_list))
     treec.triggered.connect(lambda: treeC(window, node_list))
     fastTree.triggered.connect(lambda: fastTreeC(window, node_list))
+    _tgt.triggered.connect(lambda: tgt(window, node_list))
 
     # Add the actions to Centralities submenu
     centralities_submenu.addAction(spanning_edge_btw)
     centralities_submenu.addAction(treec)
     centralities_submenu.addAction(fastTree)
+    centralities_submenu.addAction(_tgt)
 
     return centralities_submenu
 
