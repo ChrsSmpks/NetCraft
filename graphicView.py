@@ -1,5 +1,6 @@
+from PyQt6 import QtGui
 from PyQt6.QtCore import QTimer, QPointF, Qt
-from PyQt6.QtGui import QPainter
+from PyQt6.QtGui import QPainter, QAction, QPixmap
 from PyQt6.QtWidgets import QGraphicsView, QGraphicsScene, QMenu
 
 from edgeObject import EdgeObject
@@ -111,6 +112,7 @@ class GraphicView(QGraphicsView):
         Displays the context menu containing actions Delete Node, Add Link when right-clicking on a node
 
         Parameters:
+            - node (NodeObject): the node that was right-clicked
             - pos (QPointF): position to display the conext menu (where the user right-clicked)
         '''
         context_menu = QMenu(self)
@@ -121,6 +123,20 @@ class GraphicView(QGraphicsView):
 
         add_link_action = context_menu.addAction("Add Link")
         add_link_action.triggered.connect(lambda: self.startAddingLink(node))
+
+        # Create Colors submenu
+        color_menu = context_menu.addMenu('Colors')
+
+        colors_acts = [QAction(QtGui.QIcon('Icons\\node.png'), 'Green'),
+                       QAction(QtGui.QIcon('Icons\\node2.png'), 'Pink'),
+                       QAction(QtGui.QIcon('Icons\\node3.png'), 'Blue'),
+                       QAction(QtGui.QIcon('Icons\\node4.png'), 'Purple'),
+                       QAction(QtGui.QIcon('Icons\\node5.png'), 'Red')]
+
+        color_menu.addActions(colors_acts)
+
+        for act in colors_acts:
+            act.triggered.connect(lambda checked, nod=node, color=act.text(): self.changeColor(nod, color))
 
         context_menu.exec(self.mapToGlobal(pos))
 
@@ -138,6 +154,23 @@ class GraphicView(QGraphicsView):
         delete_link_action.triggered.connect(lambda: self.deleteLink(link))
 
         context_menu.exec(self.mapToGlobal(pos))
+
+    def changeColor(self, node, color):
+        if color == 'Green':
+            node.setPixmap(QPixmap('Icons\\node.png'))
+            node.color = 'Green'
+        elif color == 'Pink':
+            node.setPixmap(QPixmap('Icons\\node2.png'))
+            node.color = 'Pink'
+        elif color == 'Blue':
+            node.setPixmap(QPixmap('Icons\\node3.png'))
+            node.color = 'Blue'
+        elif color == 'Purple':
+            node.setPixmap(QPixmap('Icons\\node4.png'))
+            node.color = 'Purple'
+        else:
+            node.setPixmap(QPixmap('Icons\\node5.png'))
+            node.color = 'Red'
 
     def addLink(self, node1, node2):
         '''
