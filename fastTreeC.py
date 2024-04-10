@@ -24,6 +24,11 @@ def fastTreeC(window, node_list):
 
     if not node_list:
         return
+    if not window.graphic_view.edges:
+        window.side_label.setText('No edges in the graph!')
+        window.side_table.update_table({'-': '-'})
+        window.dock_widget.setHidden(False)
+        return
 
     # Compute Laplacian matrix L
     L = get_laplacian_matrix(window.graphic_view.edges, node_list)
@@ -59,14 +64,16 @@ def fastTreeC(window, node_list):
 
         # Update resistance distances for each edge
         for edge in window.graphic_view.edges:
-            u, v = edge.node1.key, edge.node2.key
+            # u, v = edge.node1.key, edge.node2.key
+            key1, key2 = edge.node1.key, edge.node2.key
+            u, v = node_list.index(edge.node1), node_list.index(edge.node2)
 
             # If the edge is not in the dictionary add it
-            if f'({u},{v})' not in R:
-                R[f'({u},{v})'] = 0
+            if f'({key1},{key2})' not in R:
+                R[f'({key1},{key2})'] = 0
 
             # Update resistance for the edge
-            R[f'({u},{v})'] += np.linalg.norm(z[u] - z[v])**2
+            R[f'({key1},{key2})'] += np.linalg.norm(z[u] - z[v])**2
 
     for edge in R:
         R[edge] = round(R[edge], 4)

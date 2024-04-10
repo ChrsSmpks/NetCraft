@@ -1,5 +1,5 @@
 from PyQt6 import QtGui
-from PyQt6.QtCore import QTimer, QPointF, Qt
+from PyQt6.QtCore import QTimer, QPointF, Qt, QPoint
 from PyQt6.QtGui import QPainter, QAction, QPixmap
 from PyQt6.QtWidgets import QGraphicsView, QGraphicsScene, QMenu
 
@@ -223,7 +223,11 @@ class GraphicView(QGraphicsView):
 
         # If not already in scene coordinates, transform the position
         if not self.main_window.graphic_view.transform().isIdentity():
-            scene_pos = self.main_window.graphic_view.mapToScene(pos.toPoint())
+            if isinstance(pos, QPoint):
+                scene_pos = self.main_window.graphic_view.mapToScene(pos)
+            else:
+                scene_pos = self.main_window.graphic_view.mapToScene(pos.toPoint())
+            # scene_pos = self.main_window.graphic_view.mapToScene(pos.toPoint())
 
         if not node_list:
             new_node = NodeObject(0, scene_pos.x(), scene_pos.y(), "Icons\\node.png", self.edges)
@@ -342,5 +346,9 @@ class GraphicView(QGraphicsView):
             node.neighbors.clear()
 
         node_list.clear()
+
+        self.main_window.side_label.setText('')
+        self.main_window.side_table.update_table({})
+        self.main_window.dock_widget.setHidden(True)
 
         self.main_window.statusBar().showMessage(f'Nodes: {len(node_list)} | Edges: {len(self.edges)}')

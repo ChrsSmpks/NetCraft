@@ -72,7 +72,7 @@ def get_eigen(graph_edges, node_list):
     return sorted_eigenvalues, f
 
 
-def calTau(graph_edges, edge, epsilon, eigenvalues, feature_vectors):
+def calTau(graph_edges, edge, epsilon, eigenvalues, feature_vectors, node_list):
     m = len(graph_edges)
     omega = len(feature_vectors)
 
@@ -87,7 +87,7 @@ def calTau(graph_edges, edge, epsilon, eigenvalues, feature_vectors):
     # Calculate Y
     Y = 0
     for k in range(2, omega - 1):
-        Y += ((feature_vectors[k][edge.node1.key] - feature_vectors[k][edge.node2.key]) ** 2) * (1 + eigenvalues[k])
+        Y += ((feature_vectors[k][node_list.index(edge.node1)] - feature_vectors[k][node_list.index(edge.node2)]) ** 2) * (1 + eigenvalues[k])
 
     Y /= (2 * m)
 
@@ -96,7 +96,7 @@ def calTau(graph_edges, edge, epsilon, eigenvalues, feature_vectors):
         # Calculate Delta_t
         Delta_t = 0
         for k in range(2, omega - 1):
-            Delta_t += ((feature_vectors[k][edge.node1.key] - feature_vectors[k][edge.node2.key]) ** 2) * (
+            Delta_t += ((feature_vectors[k][node_list.index(edge.node1)] - feature_vectors[k][node_list.index(edge.node2)]) ** 2) * (
                         eigenvalues[k] ** (t + 1)) / (1 - eigenvalues[k])
 
         Delta_t /= (2 * m)
@@ -124,7 +124,7 @@ def calTau(graph_edges, edge, epsilon, eigenvalues, feature_vectors):
     return tau_ij
 
 
-def maxCalTau(node, graph_edges, epsilon, eigenvalues, feature_vectors):
+def maxCalTau(node, graph_edges, epsilon, eigenvalues, feature_vectors, node_list):
     tau_p = 1
 
     # Iterate over the neighboring nodes of the current node
@@ -133,7 +133,7 @@ def maxCalTau(node, graph_edges, epsilon, eigenvalues, feature_vectors):
         for edge in graph_edges:
             if (edge.node1 == node and edge.node2 == neighbor) or (edge.node1 == node and edge.node2 == node):
                 # Calculate tau_ij for the current edge
-                tau_ij = calTau(graph_edges, edge, epsilon, eigenvalues, feature_vectors)
+                tau_ij = calTau(graph_edges, edge, epsilon, eigenvalues, feature_vectors, node_list)
 
                 # Update tau_p if tau_ij is greater
                 if tau_ij > tau_p:
@@ -143,6 +143,14 @@ def maxCalTau(node, graph_edges, epsilon, eigenvalues, feature_vectors):
 
 
 def tgt(window, node_list):
+    if not node_list:
+        return
+    if not window.graphic_view.edges:
+        window.side_label.setText('No edges in the graph!')
+        window.side_table.update_table({'-': '-'})
+        window.dock_widget.setHidden(False)
+        return
+
     eigenvalues, feature_vectors = get_eigen(window.graphic_view.edges, node_list)
 
     epsilon = 1e-4
@@ -150,11 +158,11 @@ def tgt(window, node_list):
     gt = np.zeros((node_num, node_num), dtype=float)
 
     for node in node_list:
-        tp = maxCalTau(node, window.graphic_view.edges, epsilon, eigenvalues, feature_vectors)
+        tp = maxCalTau(node, window.graphic_view.edges, epsilon, eigenvalues, feature_vectors, node_list)
 
         # gt = np.zeros((node_num, node_num), dtype=float)
         for neighbor in node.neighbors:
-            gt[node.key, neighbor.key] = 1 / len(node.neighbors)
+            gt[node_list.index(node), node_list.index(neighbor)] = 1 / len(node.neighbors)
 
         # Initialize transition probability matrices
         p = [np.zeros((node_num, node_num), dtype=float) for _ in range(tp)]
@@ -170,21 +178,21 @@ def tgt(window, node_list):
             # print('tp:', tp)
             # Compute transition probabilities for hop level l
             for j in range(node_num):
-                p[l][j, node.key] = 0  # Set all off-diagonal elements to 0
+                p[l][j, node_list.index(node)] = 0  # Set all off-diagonal elements to 0
 
             for other_node in node_list:
-                if p[l - 1][other_node.key, node.key] > 0:
+                if p[l - 1][node_list.index(other_node), node_list.index(node)] > 0:
                     for neighbor in node.neighbors:
-                        p[l][neighbor.key, node.key] += p[l][other_node.key, node.key] / len(neighbor.neighbors)
+                        p[l][node_list.index(neighbor), node_list.index(node)] += p[l][node_list.index(other_node), node_list.index(node)] / len(neighbor.neighbors)
 
             for neighbor in node.neighbors:
-                gt[node.key, neighbor.key] += p[l][node.key, node.key] / len(node.neighbors) - p[l][
-                    neighbor.key, node.key] / len(node.neighbors)
+                gt[node_list.index(node), node_list.index(neighbor)] += p[l][node_list.index(node), node_list.index(node)] / len(node.neighbors) - p[l][
+                    node_list.index(neighbor), node_list.index(node)] / len(node.neighbors)
 
     st = {}
     for edge in window.graphic_view.edges:
-        st[f'({edge.node1.key},{edge.node2.key})'] = round(gt[edge.node1.key, edge.node2.key] + gt[
-            edge.node2.key, edge.node1.key], 4)
+        st[f'({edge.node1.key},{edge.node2.key})'] = round(gt[node_list.index(edge.node1), node_list.index(edge.node2)] + gt[
+            node_list.index(edge.node2), node_list.index(edge.node1)], 4)
 
     window.side_table.update_table(st)
     window.side_label.setText('Algorithm: TGT')

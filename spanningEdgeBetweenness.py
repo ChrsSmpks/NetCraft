@@ -80,6 +80,11 @@ def spanEdgeBetw(window, node_list):
 
     if not node_list:
         return
+    if not window.graphic_view.edges:
+        window.side_label.setText('No edges in the graph!')
+        window.side_table.update_table({'-': '-'})
+        window.dock_widget.setHidden(False)
+        return
 
     laplacian_matrix = get_laplacian_matrix(window.graphic_view.edges, node_list)
 
@@ -94,7 +99,8 @@ def spanEdgeBetw(window, node_list):
     spanning_betweenness_for_edges = {}
 
     for edge in window.graphic_view.edges:
-        i, j = edge.node1.key, edge.node2.key
+        # i, j = edge.node1.key, edge.node2.key
+        i, j = node_list.index(edge.node1), node_list.index(edge.node2)
 
         laplacian_ij = np.delete(laplacian_matrix, [i, j], axis=0)
         laplacian_ij = np.delete(laplacian_ij, [i, j], axis=1)

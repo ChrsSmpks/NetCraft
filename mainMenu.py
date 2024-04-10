@@ -1,5 +1,4 @@
 import networkx as nx
-import numpy as np
 from PyQt6.QtCore import QPointF
 from PyQt6.QtGui import QAction
 from PyQt6.QtWidgets import QMenu, QFileDialog
@@ -147,7 +146,7 @@ def generate_net(window):
         if min_x < 0 or min_y < 0:
             # Shift all nodes to make coordinates non-negative
             for node in layout:
-                layout[node] = (layout[node][0] - min_x, layout[node][1] - min_y)
+                layout[node] = (layout[node][0] - min_x + 12, layout[node][1] - min_y + 12)
 
         # Add nodes to GraphicView using Fruchterman-Reingold layout positions
         for node, pos in layout.items():

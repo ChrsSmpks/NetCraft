@@ -23,7 +23,8 @@ def edge_incidence_matrix(graph_edges, node_list):
     B = np.zeros((m, n))
 
     for i, edge in enumerate(graph_edges):
-        u, v = edge.node1.key, edge.node2.key
+        # u, v = edge.node1.key, edge.node2.key
+        u, v = node_list.index(edge.node1), node_list.index(edge.node2)
         B[i, u] = -1
         B[i, v] = 1
 
@@ -50,6 +51,11 @@ def treeC(window, node_list):
     '''
 
     if not node_list:
+        return
+    if not window.graphic_view.edges:
+        window.side_label.setText('No edges in the graph!')
+        window.side_table.update_table({'-': '-'})
+        window.dock_widget.setHidden(False)
         return
 
     # Initialize matrices and Laplacian matrix
@@ -83,9 +89,11 @@ def treeC(window, node_list):
     # R = np.zeros(m)
     R = {}
     for i, edge in enumerate(window.graphic_view.edges):
-        u, v = edge.node1.key, edge.node2.key
+        # u, v = edge.node1.key, edge.node2.key
+        key1, key2 = edge.node1.key, edge.node2.key
+        u, v = node_list.index(edge.node1), node_list.index(edge.node2)
 
-        R[f'({u},{v})'] = round(np.linalg.norm(Z[:, u] - Z[:, v])**2, 4)
+        R[f'({key1},{key2})'] = round(np.linalg.norm(Z[:, u] - Z[:, v])**2, 4)
 
     window.side_table.update_table(R)
     window.side_label.setText('Algorithm: TreeC')
