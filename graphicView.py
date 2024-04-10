@@ -125,7 +125,7 @@ class GraphicView(QGraphicsView):
         add_link_action.triggered.connect(lambda: self.startAddingLink(node))
 
         # Create Colors submenu
-        color_menu = context_menu.addMenu('Colors')
+        color_menu = context_menu.addMenu('Color')
 
         colors_acts = [QAction(QtGui.QIcon('Icons\\node.png'), 'Green'),
                        QAction(QtGui.QIcon('Icons\\node2.png'), 'Pink'),
@@ -172,6 +172,22 @@ class GraphicView(QGraphicsView):
             node.setPixmap(QPixmap('Icons\\node5.png'))
             node.color = 'Red'
 
+    def recalculate(self):
+        algo_text = self.main_window.side_label.text()
+        if not self.main_window.dock_widget.isHidden() and algo_text != 'No edges in the graph!':
+            if algo_text == 'Algorithm: Spanning Edge Betweenness':
+                from spanningEdgeBetweenness import spanEdgeBetw
+                spanEdgeBetw(self.main_window, node_list)
+            elif algo_text == 'Algorithm: TreeC':
+                from treeC import treeC
+                treeC(self.main_window, node_list)
+            elif algo_text == 'Algorithm: Fast-TreeC':
+                from fastTreeC import fastTreeC
+                fastTreeC(self.main_window, node_list)
+            elif algo_text == 'Algorithm: TGT':
+                from tgt import tgt
+                tgt(self.main_window, node_list)
+
     def addLink(self, node1, node2):
         '''
         Add a link between 2 nodes and update the status bar accordingly
@@ -206,6 +222,8 @@ class GraphicView(QGraphicsView):
 
         self.main_window.statusBar().showMessage(f'Nodes: {len(node_list)} | Edges: {len(self.edges)}')
         self.main_window.saved = False
+
+        self.recalculate()
 
     def addNode(self, pos):
         '''
@@ -277,6 +295,8 @@ class GraphicView(QGraphicsView):
         self.main_window.statusBar().showMessage(f'Nodes: {len(node_list)} | Edges: {len(self.edges)}')
         self.main_window.saved = False
 
+        self.recalculate()
+
     def startAddingLink(self, node):
         '''
         Starts adding a link between 2 nodes. Sets the source node and waits for the second one to be clicked
@@ -307,6 +327,8 @@ class GraphicView(QGraphicsView):
 
             self.main_window.statusBar().showMessage(f'Nodes: {len(node_list)} | Edges: {len(self.edges)}')
             self.main_window.saved = False
+
+            self.recalculate()
 
     def mousePressEvent(self, event):
         '''
