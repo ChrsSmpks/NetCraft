@@ -113,7 +113,7 @@ class GraphicView(QGraphicsView):
 
         Parameters:
             - node (NodeObject): the node that was right-clicked
-            - pos (QPointF): position to display the conext menu (where the user right-clicked)
+            - pos (QPointF): position to display the context menu (where the user right-clicked)
         '''
         context_menu = QMenu(self)
         context_menu.setStyleSheet(context_menu_style)
@@ -156,6 +156,13 @@ class GraphicView(QGraphicsView):
         context_menu.exec(self.mapToGlobal(pos))
 
     def changeColor(self, node, color):
+        '''
+        Changes the icon of a node to have a different color.
+
+        Parameters:
+            - node (NodeObject): The node to change color of
+            - color (String): The new color to change to
+        '''
         if color == 'Green':
             node.setPixmap(QPixmap('Icons\\node.png'))
             node.color = 'Green'
@@ -173,6 +180,9 @@ class GraphicView(QGraphicsView):
             node.color = 'Red'
 
     def recalculate(self):
+        '''
+        Recalculates the centralities and updates the centrality table when centralities have already been calculated.
+        '''
         algo_text = self.main_window.side_label.text()
         if not self.main_window.dock_widget.isHidden() and algo_text != 'No edges in the graph!':
             if algo_text == 'Algorithm: Spanning Edge Betweenness':
@@ -190,7 +200,7 @@ class GraphicView(QGraphicsView):
 
     def addLink(self, node1, node2):
         '''
-        Add a link between 2 nodes and update the status bar accordingly
+        Add a link between 2 nodes and update the status bar and centrality table accordingly
 
         Parameters:
             - node1, node2 (NodeObject): Nodes which the edge connects.
@@ -203,12 +213,12 @@ class GraphicView(QGraphicsView):
         self.edges.append(new_edge)
         self.scene.addItem(new_edge)
 
-        self.main_window.statusBar().showMessage(f'Nodes: {len(node_list)} | Edges: {len(self.edges)}')
+        self.main_window.statusBar().showMessage(f'Nodes: {len(node_list)} | Edges: {len(self.edges)} | Custom Graph')
         self.main_window.saved = False
 
     def deleteLink(self, link):
         '''
-        Delete a link and update the status bar accordingly
+        Delete a link and update the status bar and centrality table accordingly
 
         Parameters:
             - link (EdgeObject): Link to delete
@@ -220,14 +230,14 @@ class GraphicView(QGraphicsView):
         link.node1.neighbors.discard(link.node2)
         link.node2.neighbors.discard(link.node1)
 
-        self.main_window.statusBar().showMessage(f'Nodes: {len(node_list)} | Edges: {len(self.edges)}')
+        self.main_window.statusBar().showMessage(f'Nodes: {len(node_list)} | Edges: {len(self.edges)} | Custom Graph')
         self.main_window.saved = False
 
         self.recalculate()
 
     def addNode(self, pos):
         '''
-        Add a node to the graph and update the status bar accordingly
+        Add a node to the graph and update the status bar and centrality table accordingly
 
         Parameters:
             - pos (QPointF): position to add the node
@@ -260,12 +270,12 @@ class GraphicView(QGraphicsView):
         new_node.graphic_key.setZValue(2)
         self.scene.addItem(new_node.graphic_key)
 
-        self.main_window.statusBar().showMessage(f'Nodes: {len(node_list)} | Edges: {len(self.edges)}')
+        self.main_window.statusBar().showMessage(f'Nodes: {len(node_list)} | Edges: {len(self.edges)} | Custom Graph')
         self.main_window.saved = False
 
     def deleteNode(self, node):
         '''
-        Delete a node and update the status bar accordingly
+        Delete a node and update the status bar and centrality table accordingly
 
         Parameters:
             - node (NodeObject): node to delete
@@ -292,7 +302,7 @@ class GraphicView(QGraphicsView):
         for other_node in node_list:
             other_node.neighbors.discard(node)
 
-        self.main_window.statusBar().showMessage(f'Nodes: {len(node_list)} | Edges: {len(self.edges)}')
+        self.main_window.statusBar().showMessage(f'Nodes: {len(node_list)} | Edges: {len(self.edges)} | Custom Graph')
         self.main_window.saved = False
 
         self.recalculate()
@@ -310,7 +320,7 @@ class GraphicView(QGraphicsView):
 
     def sceneMousePressEvent(self, pos):
         '''
-        Selects the second node to add a link and updates the status bar accordingly
+        Selects the second node to add a link and updates the status bar and centrality table accordingly
         
         Parameters:
             pos pos (QPointF): Position of the destination
@@ -325,7 +335,7 @@ class GraphicView(QGraphicsView):
             self.edges.append(new_edge)
             self.scene.addItem(new_edge)
 
-            self.main_window.statusBar().showMessage(f'Nodes: {len(node_list)} | Edges: {len(self.edges)}')
+            self.main_window.statusBar().showMessage(f'Nodes: {len(node_list)} | Edges: {len(self.edges)} | Custom Graph')
             self.main_window.saved = False
 
             self.recalculate()
@@ -351,7 +361,7 @@ class GraphicView(QGraphicsView):
 
     def clearAll(self):
         '''
-        Delete all nodes and edges of the graph and update the status bar accordingly
+        Delete all nodes and edges of the graph and update the status bar and centrality table accordingly
 
         Returns:
             - 0: If user chose Cancel option in the dialog that pops up

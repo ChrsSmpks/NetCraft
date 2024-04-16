@@ -12,7 +12,7 @@ menu_style = """
             }
 
             QMenuBar::item:selected {
-                background-color: #A9A9A9;
+                background-color: #606060;
                 color: white;
                 border-radius: 3px;
             }
@@ -26,7 +26,7 @@ menu_style = """
             }
 
             QMenu::item:selected {
-                background-color: #A9A9A9;
+                background-color: #606060;
                 color: white;
                 border-radius: 4px;
             }
@@ -168,4 +168,20 @@ table_style = """
                 border: none;
                 background: none;                 
             }
+            """
+
+toolbar_style = """
+                QToolBar {
+                    background-color: #1e1e1e;
+                    border-bottom: 0.5px solid #3a3a3a;
+                    border-radius: 4px;
+                    color: white;
+                }
+                QToolBar QToolButton {
+                    border-radius: 4px;
+                    padding: 3px 6px;
+                }
+                QToolBar QToolButton:hover {
+                    background-color: #2d2d2d;
+                }
             """

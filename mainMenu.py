@@ -158,10 +158,18 @@ def generate_net(window):
             node2 = node_list[edge[1]]
             window.graphic_view.addLink(node1, node2)
 
-        window.statusBar().showMessage(f'Nodes: {erdos_renyi_graph.number_of_nodes()} | Edges: {erdos_renyi_graph.number_of_edges()}')
+        for node in node_list:
+            if not node.neighbors:
+                import random
+                while True:
+                    rnd_node_idx = random.randint(0, len(node_list)-1)
+                    if node != node_list[rnd_node_idx]:
+                        break
+                window.graphic_view.addLink(node, node_list[rnd_node_idx])
+
+        window.statusBar().showMessage(f'Nodes: {erdos_renyi_graph.number_of_nodes()} | Edges: {erdos_renyi_graph.number_of_edges()} | Random Erdos - Renyi Graph')
 
         # Update the view
-        #window.graphic_view.fitInView(window.graphic_view.scene.sceneRect(), Qt.AspectRatioMode.KeepAspectRatio)
         window.graphic_view.updateView()
 
 

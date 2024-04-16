@@ -10,6 +10,7 @@ from mainMenu import create_main_menu
 from fileIO import save_dialog
 from nodeObject import node_list
 from style_sheets import main_page_style, graphic_view_style, side_style, table_style
+from toolbar import create_toolbar
 
 
 class Window(QMainWindow):
@@ -100,6 +101,9 @@ class Window(QMainWindow):
         self.dock_widget.setHidden(True)
 
         self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.dock_widget, Qt.Orientation.Vertical)
+
+        # Create toolbar
+        self.toolbar = create_toolbar(self)
 
     def event(self, e):
         '''
