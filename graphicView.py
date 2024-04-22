@@ -127,11 +127,11 @@ class GraphicView(QGraphicsView):
         # Create Colors submenu
         color_menu = context_menu.addMenu('Color')
 
-        colors_acts = [QAction(QtGui.QIcon('Icons\\node.png'), 'Green'),
-                       QAction(QtGui.QIcon('Icons\\node2.png'), 'Pink'),
-                       QAction(QtGui.QIcon('Icons\\node3.png'), 'Blue'),
-                       QAction(QtGui.QIcon('Icons\\node4.png'), 'Purple'),
-                       QAction(QtGui.QIcon('Icons\\node5.png'), 'Red')]
+        colors_acts = [QAction(QtGui.QIcon('Icons\\green.png'), 'Green'),
+                       QAction(QtGui.QIcon('Icons\\pink.png'), 'Pink'),
+                       QAction(QtGui.QIcon('Icons\\blue.png'), 'Blue'),
+                       QAction(QtGui.QIcon('Icons\\purple.png'), 'Purple'),
+                       QAction(QtGui.QIcon('Icons\\red.png'), 'Red')]
 
         color_menu.addActions(colors_acts)
 
@@ -163,21 +163,7 @@ class GraphicView(QGraphicsView):
             - node (NodeObject): The node to change color of
             - color (String): The new color to change to
         '''
-        if color == 'Green':
-            node.setPixmap(QPixmap('Icons\\node.png'))
-            node.color = 'Green'
-        elif color == 'Pink':
-            node.setPixmap(QPixmap('Icons\\node2.png'))
-            node.color = 'Pink'
-        elif color == 'Blue':
-            node.setPixmap(QPixmap('Icons\\node3.png'))
-            node.color = 'Blue'
-        elif color == 'Purple':
-            node.setPixmap(QPixmap('Icons\\node4.png'))
-            node.color = 'Purple'
-        else:
-            node.setPixmap(QPixmap('Icons\\node5.png'))
-            node.color = 'Red'
+        node.changeColor(color)
 
     def recalculate(self):
         '''
@@ -235,7 +221,7 @@ class GraphicView(QGraphicsView):
 
         self.recalculate()
 
-    def addNode(self, pos):
+    def addNode(self, pos, color='green'):
         '''
         Add a node to the graph and update the status bar and centrality table accordingly
 
@@ -258,9 +244,9 @@ class GraphicView(QGraphicsView):
             # scene_pos = self.main_window.graphic_view.mapToScene(pos.toPoint())
 
         if not node_list:
-            new_node = NodeObject(0, scene_pos.x(), scene_pos.y(), "Icons\\node.png", self.edges)
+            new_node = NodeObject(0, scene_pos.x(), scene_pos.y(), self.edges, color)
         else:
-            new_node = NodeObject(node_list[-1].key + 1, scene_pos.x(), scene_pos.y(), "Icons\\node.png", self.edges)
+            new_node = NodeObject(node_list[-1].key + 1, scene_pos.x(), scene_pos.y(), self.edges, color)
         node_list.append(new_node)
 
         new_node.setZValue(2)

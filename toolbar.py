@@ -18,7 +18,7 @@ def create_toolbar(window):
     toolbar.setStyleSheet(toolbar_style)
 
     # Add action
-    toolbar.addAction(plot)
+    toolbar.addAction(_plot)
 
     return toolbar
 

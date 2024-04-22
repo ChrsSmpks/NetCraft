@@ -10,10 +10,11 @@ class NodeObject(QGraphicsPixmapItem):
     Attributes:
         - key (int): Node's key
         - neiboghbors (set of NodeObject): Stores all neighbors of the node
+        - color (str): The color of the node
         - edges (list of EdgeObject): List to keep track of connected edges
         - graphic_key (QGraphicsTextItem): For visual representation of the key
     '''
-    def __init__(self, key, x, y, image_path, edges):
+    def __init__(self, key, x, y, edges, color):
         '''
         Initialize a new instance of NodeObject
 
@@ -21,16 +22,16 @@ class NodeObject(QGraphicsPixmapItem):
             - key (int): Node's key
             - x (float): x coordinate of the node
             - y (float): y coordinate of the node
-            - image_path (str): file path of the image which represents the node
             - edges (list of EdgeObject): List to keep track of connected edges
+            - color (str): The color of the node
         '''
         super().__init__()
 
         self.key = key
         self.neighbors = set()
 
-        pixmap = QPixmap(image_path)  # Load custom node image
-        self.setPixmap(pixmap)
+        self.color = color
+        self.setPixmap(QPixmap(f'Icons\\{color}.png'))
 
         self.setPos(x, y)
         self.setAcceptHoverEvents(True)
@@ -68,6 +69,15 @@ class NodeObject(QGraphicsPixmapItem):
 
         # Update the visual position of the key
         self.graphic_key.setPos(self.x() - 15, self.y() - 15)
+
+    def changeColor(self, color):
+        '''
+        Changes the icon of the node to have a different color.
+
+        Parameters:
+            - color (String): The new color to change to.'''
+        self.color = color
+        self.setPixmap(QPixmap(f'Icons\\{color.lower()}.png'))
 
 
 # List of NodeObject used in other files

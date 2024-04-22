@@ -183,7 +183,7 @@ def open_net(window):
     '''
 
     options = QFileDialog.Option.ReadOnly
-    open_path, _ = QFileDialog.getOpenFileName(window, "Open Graph File", "", "JSON Files (*.json);;All Files (*)",
+    open_path, _ = QFileDialog.getOpenFileName(window, "Open Graph File", "", "JSON Files (*.json);;Text Files (*.txt)",
                                                options=options)
 
     if open_path:
@@ -201,10 +201,13 @@ def save_net(window):
         - window (QMainWindow): The main window of the app
     '''
 
-    save_path, _ = QFileDialog.getSaveFileName(window, "Save Graph File", "", "JSON Files (*.json);;All Files (*)")
+    save_path, _ = QFileDialog.getSaveFileName(window, "Save Graph File", "", "JSON Files (*.json);;Text Files (*.txt)")
 
     if save_path:
-        save_graph(window, save_path)  # Adjust based on your project structure
+        # Determine file format based on file extension
+        file_format = 'json' if save_path.endswith('.json') else 'txt'
+
+        save_graph(window, save_path, file_format)  # Adjust based on your project structure
 
 
 def exit_app(window):
