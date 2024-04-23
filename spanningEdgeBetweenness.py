@@ -109,7 +109,8 @@ def spanEdgeBetw(window, node_list):
         trees_for_edges = np.linalg.det(laplacian_ij)
 
         # Store the result for the edge
-        spanning_betweenness_for_edges[f'({edge.node1.key},{edge.node2.key})'] = round(trees_for_edges / cofactor, 4)
+        # spanning_betweenness_for_edges[f'({edge.node1.key},{edge.node2.key})'] = round(trees_for_edges / cofactor, 4)
+        spanning_betweenness_for_edges[tuple(sorted((edge.node1.key, edge.node2.key)))] = round(trees_for_edges / cofactor, 4)
 
     window.side_table.update_table(spanning_betweenness_for_edges)
     window.side_label.setText('Algorithm: Spanning Edge Betweenness')

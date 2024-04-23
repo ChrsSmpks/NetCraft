@@ -35,19 +35,11 @@ def plot(cent_dict):
 
     plt.show()
 
-    for cent, count in cent_counts.items():
-        print(f'Centrality {cent}: {count} edges')
-
-    for cent, edges in edges_with_cents.items():
-        edgs = ', '.join(edges)
-        print(f'Centrality {cent}: {edgs}')
-
 
 def show_edge_info(sel, x_cent, sorted_cent_counts, edges_with_cents):
     x_val = x_cent[np.abs(x_cent - sel.target[0]).argmin()]
     if x_val in edges_with_cents:
-        #sel.annotation.set_text('\n'.join(edges_with_cents[x_val]))
-        edges_text = '\n'.join(edges_with_cents[x_val])
-        #coord_text = f'X: {sel.target[0]:.4f}\nY: {sel.target[1]:.4f}'
+        # edges_text = '\n'.join(edges_with_cents[x_val])
+        edges_text = '\n'.join(['({}, {})'.format(x[0], x[1]) for x in edges_with_cents[x_val]])
         coord_text = f'X: {x_val}\nY: {sorted_cent_counts[x_val]}'
         sel.annotation.set_text(f'{coord_text}\n\nEdges:\n{edges_text}')

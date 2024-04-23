@@ -69,11 +69,11 @@ def fastTreeC(window, node_list):
             u, v = node_list.index(edge.node1), node_list.index(edge.node2)
 
             # If the edge is not in the dictionary add it
-            if f'({key1},{key2})' not in R:
-                R[f'({key1},{key2})'] = 0
+            if (key1, key2) not in R:
+                R[tuple(sorted((key1, key2)))] = 0
 
             # Update resistance for the edge
-            R[f'({key1},{key2})'] += np.linalg.norm(z[u] - z[v])**2
+            R[tuple(sorted((key1, key2)))] += np.linalg.norm(z[u] - z[v])**2
 
     for edge in R:
         R[edge] = round(R[edge], 4)

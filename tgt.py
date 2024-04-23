@@ -191,7 +191,7 @@ def tgt(window, node_list):
 
     st = {}
     for edge in window.graphic_view.edges:
-        st[f'({edge.node1.key},{edge.node2.key})'] = round(gt[node_list.index(edge.node1), node_list.index(edge.node2)] + gt[
+        st[tuple(sorted((edge.node1.key, edge.node2.key)))] = round(gt[node_list.index(edge.node1), node_list.index(edge.node2)] + gt[
             node_list.index(edge.node2), node_list.index(edge.node1)], 4)
 
     window.side_table.update_table(st)
