@@ -27,7 +27,6 @@ class CentralityTable(QTableWidget):
         '''
 
         self.setColumnCount(2)
-        self.setHorizontalHeaderLabels(['Edge', 'Centrality'])
         self.setRowCount(len(self.data_dict))
         self.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
 
@@ -52,7 +51,7 @@ class CentralityTable(QTableWidget):
             self.setItem(row, 0, edge_item)
             self.setItem(row, 1, centrality_item)
 
-    def update_table(self, new_data_dict):
+    def update_table(self, new_data_dict, heading):
         '''
         Updates the table to display the new edges and their centralities
 
@@ -60,10 +59,17 @@ class CentralityTable(QTableWidget):
             - new_data_dict (dictionary): A new dictionary containing edges and their centralities to display on the table
         '''
 
+        # Temporally disable sorting to eliminate problem due to mismatch of the previous row count and the length of
+        # the new dictionary
+        self.setSortingEnabled(False)
+
         self.clearContents()
         self.setRowCount(len(new_data_dict))
         self.data_dict = new_data_dict
         self.populate_table()
+        self.setHorizontalHeaderLabels([heading, 'Centrality'])
+
+        self.setSortingEnabled(True)
 
     def get_data(self):
         '''

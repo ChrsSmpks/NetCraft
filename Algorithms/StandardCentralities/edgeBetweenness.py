@@ -61,7 +61,7 @@ def edgeBetweenness(window, node_list):
     for edge in edge_betweenness:
         edge_betweenness[edge] = round(edge_betweenness[edge], 4)
 
-    window.side_table.update_table(edge_betweenness)
+    window.side_table.update_table(edge_betweenness, 'Edge')
     window.side_label.setText('Algorithm: Edge Betweenness')
     window.dock_widget.setHidden(False)
 

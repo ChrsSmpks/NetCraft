@@ -12,7 +12,7 @@ def create_toolbar(window):
     window.addToolBar(toolbar)
 
     _plot = QAction(QtGui.QIcon('Icons\\plot.png'), 'Plot Centralities', toolbar)
-    _plot.triggered.connect(lambda: plot_signal(window.side_table))
+    _plot.triggered.connect(lambda: plot_signal(window.side_table, window.side_label.text()))
 
     # Styling
     toolbar.setStyleSheet(toolbar_style)
@@ -23,6 +23,8 @@ def create_toolbar(window):
     return toolbar
 
 
-def plot_signal(table):
+def plot_signal(table, algo_text):
     table_data = table.get_data()
-    plot(table_data)
+    if algo_text:
+        algo_text = algo_text.split(': ')[1]
+    plot(table_data, algo_text)

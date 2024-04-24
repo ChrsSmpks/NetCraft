@@ -86,15 +86,13 @@ def treeC(window, node_list):
         Z = np.vstack((Z, zi))
 
     # Compute and return R(e)
-    # R = np.zeros(m)
     R = {}
     for i, edge in enumerate(window.graphic_view.edges):
-        # u, v = edge.node1.key, edge.node2.key
         key1, key2 = edge.node1.key, edge.node2.key
         u, v = node_list.index(edge.node1), node_list.index(edge.node2)
 
         R[tuple(sorted((key1, key2)))] = round(np.linalg.norm(Z[:, u] - Z[:, v])**2, 4)
 
-    window.side_table.update_table(R)
+    window.side_table.update_table(R, 'Edge')
     window.side_label.setText('Algorithm: TreeC')
     window.dock_widget.setHidden(False)

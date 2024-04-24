@@ -33,7 +33,6 @@ def get_eigen(graph_edges, node_list):
 
     # Compute the Transition Matrix (P)
     D_inv = np.diag(1 / np.diag(D))
-    # P1 = np.divide(A, np.sum(A, axis=1)[:, np.newaxis], where=np.sum(A, axis=1)[:, np.newaxis] != 0)
     P = np.matmul(D_inv, A)
 
     # Compute D^(1/2) * P * D^(-1/2)
@@ -105,16 +104,11 @@ def calTau(graph_edges, edge, epsilon, eigenvalues, feature_vectors, node_list):
         a1 = 1 / deg1 + 1 / deg2 - 2 / (deg1 * deg2) - Y
         a2 = epsilon - Delta_t
         a3 = 1 - (eigenvalues[2] ** 2)
-        # print('a1:', a1, 'a2:', a2, 'a3:', a3)
         a = np.log(np.abs(a1 / (a2 * a3)))
-        # a = np.log((1 / deg1 + 1 / deg2 - 2 / (deg1 * deg2) - Y) / ((epsilon - Delta_t) * (1 - eigenvalues[2])))
-        # print('a:', a)
         b = np.log(1 / np.abs(eigenvalues[2]))
-        # print('b:', b)
         new_tau_ij = round(a / b - 1)
 
         # Check if tau_ij is less than or equal to t
-        # if t <= tau_ij:
         if t <= new_tau_ij:
             tau_ij = new_tau_ij
             t += 2
@@ -160,7 +154,6 @@ def tgt(window, node_list):
     for node in node_list:
         tp = maxCalTau(node, window.graphic_view.edges, epsilon, eigenvalues, feature_vectors, node_list)
 
-        # gt = np.zeros((node_num, node_num), dtype=float)
         for neighbor in node.neighbors:
             gt[node_list.index(node), node_list.index(neighbor)] = 1 / len(node.neighbors)
 
@@ -175,7 +168,6 @@ def tgt(window, node_list):
                     p[0][i, j] = 0  # Off-diagonal elements are set to 0
 
         for l in range(1, tp):
-            # print('tp:', tp)
             # Compute transition probabilities for hop level l
             for j in range(node_num):
                 p[l][j, node_list.index(node)] = 0  # Set all off-diagonal elements to 0
@@ -194,6 +186,6 @@ def tgt(window, node_list):
         st[tuple(sorted((edge.node1.key, edge.node2.key)))] = round(gt[node_list.index(edge.node1), node_list.index(edge.node2)] + gt[
             node_list.index(edge.node2), node_list.index(edge.node1)], 4)
 
-    window.side_table.update_table(st)
+    window.side_table.update_table(st, 'Edge')
     window.side_label.setText('Algorithm: TGT')
     window.dock_widget.setHidden(False)

@@ -6,7 +6,9 @@ from networkx import fruchterman_reingold_layout
 
 from Algorithms.StandardCentralities.edgeBetweenness import edgeBetweenness
 from Algorithms.StandardCentralities.betweenness import betweenness
+from Algorithms.StandardCentralities.closeness import closeness
 from Algorithms.SpanningCentralities.spanningEdgeBetweenness import spanEdgeBetw
+from Algorithms.StandardCentralities.degreeCentrality import degreeCentrality
 from Algorithms.SpanningCentralities.treeC import treeC
 from Algorithms.SpanningCentralities.fastTreeC import fastTreeC
 from Algorithms.SpanningCentralities.tgt import tgt
@@ -32,12 +34,12 @@ def create_main_menu(window):
 
     # Create submenus
     file_menu = create_file_menu(main_menu, window)
-    basic_centralities_menu = create_standard_cenrtalities_menu(main_menu, window)
+    standard_centralities_menu = create_standard_cenrtalities_menu(main_menu, window)
     spanning_centralities_menu = create_spanning_centralities_menu(main_menu, window)
 
     # Add submenus
     main_menu.addMenu(file_menu)
-    main_menu.addMenu(basic_centralities_menu)
+    main_menu.addMenu(standard_centralities_menu)
     main_menu.addMenu(spanning_centralities_menu)
 
     # Styling
@@ -87,16 +89,22 @@ def create_standard_cenrtalities_menu(main_menu, window):
     centralities_submenu = QMenu('Standard-Centralities', main_menu)
 
     # Create actions for Centralities submenu
+    deg = QAction('Degree', centralities_submenu)
     edge_btw = QAction('Edge Betweenness', centralities_submenu)
     btw = QAction('Betweenness', centralities_submenu)
+    clos = QAction('Closeness', centralities_submenu)
 
     # Connect the created actions
+    deg.triggered.connect(lambda: degreeCentrality(window, node_list))
     edge_btw.triggered.connect(lambda: edgeBetweenness(window, node_list))
     btw.triggered.connect(lambda: betweenness(window, node_list))
+    clos.triggered.connect(lambda: closeness(window, node_list))
 
     # Add the actions to Centralities submenu
+    centralities_submenu.addAction(deg)
     centralities_submenu.addAction(edge_btw)
     centralities_submenu.addAction(btw)
+    centralities_submenu.addAction(clos)
 
     return centralities_submenu
 

@@ -4,7 +4,7 @@ import numpy as np
 import functools
 
 
-def plot(cent_dict):
+def plot(cent_dict, algo_text):
     cent_counts = {}
     edges_with_cents = {}
     for edge, cent in cent_dict.items():
@@ -24,7 +24,7 @@ def plot(cent_dict):
     # Plot the graph
     fig, ax = plt.subplots()
     ax.plot(x_cent, y_counts, marker='o', linestyle='-')
-    ax.set_title('Centralities Graph')
+    ax.set_title(f'{algo_text} Centralities Graph')
     ax.set_xlabel('Centralities')
     ax.set_ylabel('Occurrences')
     ax.grid(True)

@@ -183,6 +183,18 @@ class GraphicView(QGraphicsView):
             elif algo_text == 'Algorithm: TGT':
                 from Algorithms.SpanningCentralities.tgt import tgt
                 tgt(self.main_window, node_list)
+            elif algo_text == 'Algorithm: Degree Centrality':
+                from Algorithms.StandardCentralities.degreeCentrality import degreeCentrality
+                degreeCentrality(self.main_window, node_list)
+            elif algo_text == 'Algorithm: Edge Betweenness':
+                from Algorithms.StandardCentralities.edgeBetweenness import edgeBetweenness
+                edgeBetweenness(self.main_window, node_list)
+            elif algo_text == 'Algorithm: Betweenness':
+                from Algorithms.StandardCentralities.betweenness import betweenness
+                betweenness(self.main_window, node_list)
+            elif algo_text == 'Algorithm: Closeness':
+                from Algorithms.StandardCentralities.closeness import closeness
+                closeness(self.main_window, node_list)
 
     def addLink(self, node1, node2):
         '''

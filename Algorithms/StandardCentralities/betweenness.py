@@ -23,7 +23,7 @@ def betweenness(window, node_list):
         return
 
     # Initialize betweenness centrality dictionary
-    betweenness = {node.key: 0 for node in node_list}
+    betweenness_centralities = {node.key: 0 for node in node_list}
 
     for node in node_list:
         # Initialization
@@ -47,6 +47,10 @@ def betweenness(window, node_list):
                     shortest_paths[neighbor.key] += shortest_paths[v.key]
                     pred[neighbor.key].append(v)
 
+        print('source', node.key)
+        print(distances)
+        print()
+
         # Back-propagation of dependencies
         dependencies = {node.key: 0 for node in node_list}
         while S:
@@ -54,12 +58,12 @@ def betweenness(window, node_list):
             for v in pred[w.key]:
                 dependencies[v.key] += shortest_paths[v.key] / shortest_paths[w.key] * (1 + dependencies[w.key])
             if w != node:
-                betweenness[w.key] += dependencies[w.key]
+                betweenness_centralities[w.key] += dependencies[w.key]
 
     # Divide centralities by 2 because it wields double scores for undirected graphs since each pair is considered twice
-    for node in betweenness:
-        betweenness[node] = round(betweenness[node]/2, 4)
+    for node in betweenness_centralities:
+        betweenness_centralities[node] = round(betweenness_centralities[node]/2, 4)
 
-    window.side_table.update_table(betweenness)
-    window.side_label.setText('Algorithm: Edge Betweenness')
+    window.side_table.update_table(betweenness_centralities, 'Node')
+    window.side_label.setText('Algorithm: Betweenness')
     window.dock_widget.setHidden(False)

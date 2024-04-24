@@ -64,7 +64,6 @@ def fastTreeC(window, node_list):
 
         # Update resistance distances for each edge
         for edge in window.graphic_view.edges:
-            # u, v = edge.node1.key, edge.node2.key
             key1, key2 = edge.node1.key, edge.node2.key
             u, v = node_list.index(edge.node1), node_list.index(edge.node2)
 
@@ -78,6 +77,6 @@ def fastTreeC(window, node_list):
     for edge in R:
         R[edge] = round(R[edge], 4)
 
-    window.side_table.update_table(R)
+    window.side_table.update_table(R, 'Edge')
     window.side_label.setText('Algorithm: Fast-TreeC')
     window.dock_widget.setHidden(False)

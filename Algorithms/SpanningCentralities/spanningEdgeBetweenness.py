@@ -99,7 +99,6 @@ def spanEdgeBetw(window, node_list):
     spanning_betweenness_for_edges = {}
 
     for edge in window.graphic_view.edges:
-        # i, j = edge.node1.key, edge.node2.key
         i, j = node_list.index(edge.node1), node_list.index(edge.node2)
 
         laplacian_ij = np.delete(laplacian_matrix, [i, j], axis=0)
@@ -109,9 +108,8 @@ def spanEdgeBetw(window, node_list):
         trees_for_edges = np.linalg.det(laplacian_ij)
 
         # Store the result for the edge
-        # spanning_betweenness_for_edges[f'({edge.node1.key},{edge.node2.key})'] = round(trees_for_edges / cofactor, 4)
         spanning_betweenness_for_edges[tuple(sorted((edge.node1.key, edge.node2.key)))] = round(trees_for_edges / cofactor, 4)
 
-    window.side_table.update_table(spanning_betweenness_for_edges)
+    window.side_table.update_table(spanning_betweenness_for_edges, 'Edge')
     window.side_label.setText('Algorithm: Spanning Edge Betweenness')
     window.dock_widget.setHidden(False)
