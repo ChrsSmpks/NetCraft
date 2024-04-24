@@ -1,17 +1,17 @@
-def edgeBetw(window, node_list):
+def betweenness(window, node_list):
     '''
-    Calculates the Edge Betweenness centrality for every edge
+    Calculates the Betweenness centrality for every node
 
     Parameters:
         - window (QMainWindow): The main window of the app
         - node_list (list of NodeObject): The nodes of the graph
 
     Algorithm:
-        - Initialize edge_betweenness dictionary to store edge betweenness centrality values for each edge
+        - Initialize betweenness centrality dictionary
         - For each node in the graph:
-            - Perform Breadth-First Search (BFS) to find the shortest paths and their counts from the current node to all other nodes
+            - Perform Breadth-First Search (BFS) to find shortest paths and their counts from the current node to all other nodes
             - Back-propagate dependencies from the last node visited to the source node
-            - Update edge betweenness centrality values based on the dependencies
+            - Update betweenness centrality for each node based on dependencies
     '''
 
     if not node_list:
@@ -23,7 +23,7 @@ def edgeBetw(window, node_list):
         return
 
     # Initialize betweenness centrality dictionary
-    edge_betweenness = {tuple(sorted((edge.node1.key, edge.node2.key))): 0 for edge in window.graphic_view.edges}
+    betweenness = {node.key: 0 for node in node_list}
 
     for node in node_list:
         # Initialization
@@ -47,21 +47,19 @@ def edgeBetw(window, node_list):
                     shortest_paths[neighbor.key] += shortest_paths[v.key]
                     pred[neighbor.key].append(v)
 
-        # Dependency calculation
+        # Back-propagation of dependencies
         dependencies = {node.key: 0 for node in node_list}
         while S:
             w = S.pop()
             for v in pred[w.key]:
-                c = shortest_paths[v.key] / shortest_paths[w.key] * (1 + dependencies[w.key])
-                if (v.key, w.key) in edge_betweenness.keys():
-                    edge_betweenness[(v.key, w.key)] += c
-                dependencies[v.key] += c
+                dependencies[v.key] += shortest_paths[v.key] / shortest_paths[w.key] * (1 + dependencies[w.key])
+            if w != node:
+                betweenness[w.key] += dependencies[w.key]
 
-    # Round centralities to 4 decimals
-    for edge in edge_betweenness:
-        edge_betweenness[edge] = round(edge_betweenness[edge], 4)
+    # Divide centralities by 2 because it wields double scores for undirected graphs since each pair is considered twice
+    for node in betweenness:
+        betweenness[node] = round(betweenness[node]/2, 4)
 
-    window.side_table.update_table(edge_betweenness)
+    window.side_table.update_table(betweenness)
     window.side_label.setText('Algorithm: Edge Betweenness')
     window.dock_widget.setHidden(False)
-
