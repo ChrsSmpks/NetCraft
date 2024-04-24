@@ -1,7 +1,7 @@
 import numpy as np
 
-from spanningEdgeBetweenness import get_laplacian_matrix
-from treeC import edge_incidence_matrix
+from .spanningEdgeBetweenness import get_laplacian_matrix
+from .treeC import edge_incidence_matrix
 
 
 def fastTreeC(window, node_list):

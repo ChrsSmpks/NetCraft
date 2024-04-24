@@ -1,6 +1,6 @@
 import numpy as np
 
-from spanningEdgeBetweenness import get_laplacian_matrix
+from .spanningEdgeBetweenness import get_laplacian_matrix
 
 
 def edge_incidence_matrix(graph_edges, node_list):

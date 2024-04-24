@@ -1,4 +1,4 @@
-def edgeBetw(window, node_list):
+def edgeBetweenness(window, node_list):
     '''
     Calculates the Edge Betweenness centrality for every edge
 

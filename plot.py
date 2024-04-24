@@ -5,8 +5,6 @@ import functools
 
 
 def plot(cent_dict):
-    print(cent_dict)
-
     cent_counts = {}
     edges_with_cents = {}
     for edge, cent in cent_dict.items():
@@ -39,7 +37,6 @@ def plot(cent_dict):
 def show_edge_info(sel, x_cent, sorted_cent_counts, edges_with_cents):
     x_val = x_cent[np.abs(x_cent - sel.target[0]).argmin()]
     if x_val in edges_with_cents:
-        # edges_text = '\n'.join(edges_with_cents[x_val])
         edges_text = '\n'.join(['({}, {})'.format(x[0], x[1]) for x in edges_with_cents[x_val]])
         coord_text = f'X: {x_val}\nY: {sorted_cent_counts[x_val]}'
         sel.annotation.set_text(f'{coord_text}\n\nEdges:\n{edges_text}')

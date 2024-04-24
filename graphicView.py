@@ -3,8 +3,8 @@ from PyQt6.QtCore import QTimer, QPointF, Qt, QPoint
 from PyQt6.QtGui import QPainter, QAction, QPixmap
 from PyQt6.QtWidgets import QGraphicsView, QGraphicsScene, QMenu
 
-from edgeObject import EdgeObject
-from nodeObject import NodeObject, node_list
+from DataStructures.edgeObject import EdgeObject
+from DataStructures.nodeObject import NodeObject, node_list
 from style_sheets import context_menu_style
 
 
@@ -172,16 +172,16 @@ class GraphicView(QGraphicsView):
         algo_text = self.main_window.side_label.text()
         if not self.main_window.dock_widget.isHidden() and algo_text != 'No edges in the graph!':
             if algo_text == 'Algorithm: Spanning Edge Betweenness':
-                from spanningEdgeBetweenness import spanEdgeBetw
+                from Algorithms.SpanningCentralities.spanningEdgeBetweenness import spanEdgeBetw
                 spanEdgeBetw(self.main_window, node_list)
             elif algo_text == 'Algorithm: TreeC':
-                from treeC import treeC
+                from Algorithms.SpanningCentralities.treeC import treeC
                 treeC(self.main_window, node_list)
             elif algo_text == 'Algorithm: Fast-TreeC':
-                from fastTreeC import fastTreeC
+                from Algorithms.SpanningCentralities.fastTreeC import fastTreeC
                 fastTreeC(self.main_window, node_list)
             elif algo_text == 'Algorithm: TGT':
-                from tgt import tgt
+                from Algorithms.SpanningCentralities.tgt import tgt
                 tgt(self.main_window, node_list)
 
     def addLink(self, node1, node2):

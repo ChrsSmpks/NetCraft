@@ -8,7 +8,7 @@ from centralityTable import CentralityTable
 from graphicView import GraphicView
 from mainMenu import create_main_menu
 from fileIO import save_dialog
-from nodeObject import node_list
+from DataStructures.nodeObject import node_list
 from style_sheets import main_page_style, graphic_view_style, side_style, table_style
 from toolbar import create_toolbar
 

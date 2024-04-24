@@ -1,7 +1,7 @@
 from PyQt6.QtCore import QPointF
 from PyQt6.QtWidgets import QMessageBox
 
-from nodeObject import node_list
+from DataStructures.nodeObject import node_list
 
 import json
 

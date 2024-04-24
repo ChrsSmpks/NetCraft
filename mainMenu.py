@@ -4,16 +4,16 @@ from PyQt6.QtGui import QAction
 from PyQt6.QtWidgets import QMenu, QFileDialog
 from networkx import fruchterman_reingold_layout
 
-from edgeBetweenness import edgeBetw
-from betweenness import betweenness
-from fastTreeC import fastTreeC
+from Algorithms.StandardCentralities.edgeBetweenness import edgeBetweenness
+from Algorithms.StandardCentralities.betweenness import betweenness
+from Algorithms.SpanningCentralities.spanningEdgeBetweenness import spanEdgeBetw
+from Algorithms.SpanningCentralities.treeC import treeC
+from Algorithms.SpanningCentralities.fastTreeC import fastTreeC
+from Algorithms.SpanningCentralities.tgt import tgt
 from netGenerationDialog import NetworkGenerationDialog
-from nodeObject import node_list
+from DataStructures.nodeObject import node_list
 from fileIO import save_graph, load_graph
-from spanningEdgeBetweenness import spanEdgeBetw
 from style_sheets import menu_style
-from tgt import tgt
-from treeC import treeC
 
 
 def create_main_menu(window):
@@ -32,7 +32,7 @@ def create_main_menu(window):
 
     # Create submenus
     file_menu = create_file_menu(main_menu, window)
-    basic_centralities_menu = create_basic_cenrtalities_menu(main_menu, window)
+    basic_centralities_menu = create_standard_cenrtalities_menu(main_menu, window)
     spanning_centralities_menu = create_spanning_centralities_menu(main_menu, window)
 
     # Add submenus
@@ -82,16 +82,16 @@ def create_file_menu(main_menu, window):
     return file_submenu
 
 
-def create_basic_cenrtalities_menu(main_menu, window):
+def create_standard_cenrtalities_menu(main_menu, window):
     # Create Centralities submenu
-    centralities_submenu = QMenu('BasicCentralities', main_menu)
+    centralities_submenu = QMenu('Standard-Centralities', main_menu)
 
     # Create actions for Centralities submenu
     edge_btw = QAction('Edge Betweenness', centralities_submenu)
     btw = QAction('Betweenness', centralities_submenu)
 
     # Connect the created actions
-    edge_btw.triggered.connect(lambda: edgeBetw(window, node_list))
+    edge_btw.triggered.connect(lambda: edgeBetweenness(window, node_list))
     btw.triggered.connect(lambda: betweenness(window, node_list))
 
     # Add the actions to Centralities submenu
@@ -114,7 +114,7 @@ def create_spanning_centralities_menu(main_menu, window):
     '''
 
     # Create Centralities submenu
-    centralities_submenu = QMenu('SpanningCentralities', main_menu)
+    centralities_submenu = QMenu('Spanning-Centralities', main_menu)
 
     # Create actions for Centralities submenu
     spanning_edge_btw = QAction('Spanning Edge Betweenness', centralities_submenu)
