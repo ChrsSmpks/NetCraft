@@ -66,7 +66,20 @@ class GraphicView(QGraphicsView):
         if event.angleDelta().y() < 0:
             factor = 1.0 / self.zoom_factor
 
+        # Get the global cursor position at the time of the wheel event
+        global_cursor_pos = event.globalPosition()
+
+        # Map the global cursor position to the local coordinate system of the widget
+        cursor_position = self.mapFromGlobal(global_cursor_pos)
+
+        # Map the cursor position to scene coordinates
+        scene_pos = self.mapToScene(cursor_position.toPoint())
+
+        self.centerOn(scene_pos)
+
+        # Adjust the transformation matrix to zoom around the cursor position
         self.scale(factor, factor)
+
         self.zoom_level += 1 if factor > 1 else -1
 
     def updateView(self):
@@ -378,7 +391,7 @@ class GraphicView(QGraphicsView):
         node_list.clear()
 
         self.main_window.side_label.setText('')
-        self.main_window.side_table.update_table({})
+        self.main_window.side_table.update_table({}, 'Node')
         self.main_window.dock_widget.setHidden(True)
 
         self.main_window.statusBar().showMessage(f'Nodes: {len(node_list)} | Edges: {len(self.edges)}')
