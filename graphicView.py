@@ -113,7 +113,7 @@ class GraphicView(QGraphicsView):
         context_menu.setStyleSheet(context_menu_style)
 
         add_node_action = context_menu.addAction("Add Node")
-        add_node_action.triggered.connect(lambda: self.addNode(pos))
+        add_node_action.triggered.connect(lambda: self.addNode(pos, self.main_window.node_color))
 
         clear_all_action = context_menu.addAction("Clear All")
         clear_all_action.triggered.connect(self.clearAll)

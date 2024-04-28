@@ -24,6 +24,10 @@ class Window(QMainWindow):
         - side_label (QLabel): Label of the dock to display the name of the used algorithm
         - side_table (CentralityTable): The table of the dock to display the centrality of each edge
         - dock_widget (QDockWidget): Dock which contains side_label and side_table
+        - saved (bool): Variable to indicate if the current graph has been saved
+        - weighted (bool): Variable to indicate if the current graph is weighted
+        - toolbar (QToolBar): The toolbar of the app
+        -color (String): The default color for created nodes
     '''
 
     def __init__(self):
@@ -32,6 +36,10 @@ class Window(QMainWindow):
         '''
 
         super(Window, self).__init__()
+
+        self.saved = False
+        self.weighted = False
+        self.node_color = 'green'
 
         # Set window properties
         self.setWindowTitle('NetCraft Insight')
@@ -52,9 +60,6 @@ class Window(QMainWindow):
 
         # Set the position
         self.move(x, y-20)
-
-        # Variable to indicate if the current graph has been saved
-        self.saved = False
 
         # Create the main widget and layout
         self.main_view = QWidget(self)

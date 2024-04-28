@@ -13,6 +13,7 @@ from Algorithms.SpanningCentralities.treeC import treeC
 from Algorithms.SpanningCentralities.fastTreeC import fastTreeC
 from Algorithms.SpanningCentralities.tgt import tgt
 from netGenerationDialog import NetworkGenerationDialog
+from propertiesDialog import PropertiesDialog
 from DataStructures.nodeObject import node_list
 from fileIO import save_graph, load_graph
 from style_sheets import menu_style
@@ -36,11 +37,14 @@ def create_main_menu(window):
     file_menu = create_file_menu(main_menu, window)
     standard_centralities_menu = create_standard_cenrtalities_menu(main_menu, window)
     spanning_centralities_menu = create_spanning_centralities_menu(main_menu, window)
+    options_menu = create_options_menu(main_menu, window)
 
     # Add submenus
     main_menu.addMenu(file_menu)
     main_menu.addMenu(standard_centralities_menu)
     main_menu.addMenu(spanning_centralities_menu)
+    main_menu.addMenu(options_menu)
+    main_menu.addAction(QAction('Hello'))
 
     # Styling
     main_menu.setStyleSheet(menu_style)
@@ -77,8 +81,10 @@ def create_file_menu(main_menu, window):
 
     # Add the actions to File submenu
     file_submenu.addAction(generate_action)
+    file_submenu.addSeparator()
     file_submenu.addAction(open_action)
     file_submenu.addAction(save_action)
+    file_submenu.addSeparator()
     file_submenu.addAction(exit_action)
 
     return file_submenu
@@ -145,6 +151,25 @@ def create_spanning_centralities_menu(main_menu, window):
     return centralities_submenu
 
 
+def create_options_menu(main_menu, window):
+    # Create Properties submenu
+    options_menu = QMenu('Options', main_menu)
+
+    # Create properties action
+    options_act = QAction('Options...', main_menu)
+    options_act.triggered.connect(lambda: options_action(window))
+
+    # Add action
+    options_menu.addAction(options_act)
+
+    return options_menu
+
+
+def options_action(window):
+    properties_dialog = PropertiesDialog(window)
+    properties_dialog.exec()
+
+
 def generate_net(window):
     '''
     Generates a random Erdos - Renyi graph in a Fruchterman_Reingold based on the user input of number of nodes and density
@@ -181,7 +206,7 @@ def generate_net(window):
 
         # Add nodes to GraphicView using Fruchterman-Reingold layout positions
         for node, pos in layout.items():
-            window.graphic_view.addNode(QPointF(pos[0], pos[1]))
+            window.graphic_view.addNode(QPointF(pos[0], pos[1]), window.node_color)
 
         # Add edges to the network
         for edge in erdos_renyi_graph.edges:

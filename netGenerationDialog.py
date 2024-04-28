@@ -1,4 +1,4 @@
-from PyQt6.QtWidgets import QDialog, QVBoxLayout, QLabel, QLineEdit, QDialogButtonBox, QMessageBox
+from PyQt6.QtWidgets import QDialog, QVBoxLayout, QLabel, QLineEdit, QDialogButtonBox, QMessageBox, QFrame
 
 
 class NetworkGenerationDialog(QDialog):
@@ -30,6 +30,8 @@ class NetworkGenerationDialog(QDialog):
 
         self.button_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
 
+        self.layout.addWidget(QLabel('Generate Random Erdos-Renyi Graph'))
+        self.layout.addSpacing(10)
         self.layout.addWidget(self.label_nodes)
         self.layout.addWidget(self.edit_nodes)
         self.layout.addWidget(self.label_density)
