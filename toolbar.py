@@ -25,6 +25,6 @@ def create_toolbar(window):
 
 def plot_signal(table, algo_text):
     table_data = table.get_data()
-    if algo_text:
+    if algo_text and algo_text != 'No edges in the graph!':
         algo_text = algo_text.split(': ')[1]
     plot(table_data, algo_text)

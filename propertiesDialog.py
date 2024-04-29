@@ -2,18 +2,33 @@ from PyQt6.QtWidgets import QLabel, QVBoxLayout, QDialog, QFrame, QHBoxLayout, Q
 
 
 class PropertiesDialog(QDialog):
+    '''
+    Custom QDialog class allowing user to specify the properties of the graph.
+
+    Attributes:
+        - main_window (QMainWindow): The main window of the app.
+        - edge_weight_radio (QRadioButton): Indicates whether the graph is weighted.
+        - color_combo (QComboBox): Contains options for the default node color.
+    '''
     def __init__(self, main_window, parent=None):
+        '''
+        Initialize a new instance of PropertiesDialog
+
+        Parameters:
+            - main_window (QMainWindow): The main window of the app.
+        '''
         super().__init__(parent)
 
         self.main_window = main_window
         self.color_combo = None
-
         self.edge_weight_radio = None
-        self.icon_number_label = None
         self.setWindowTitle("Choose Options")
         self.initUI()
 
     def initUI(self):
+        '''
+        Initialize dialog window's UI
+        '''
         layout = QVBoxLayout()
 
         # Title
@@ -47,8 +62,10 @@ class PropertiesDialog(QDialog):
         elif self.main_window.weighted and self.main_window.graphic_view.edges:
             edge_unweight_radio.setEnabled(False)
             self.edge_weight_radio.setChecked(True)
-        else:
+        elif not self.main_window.weighted:
             edge_unweight_radio.setChecked(True)
+        else:
+            self.edge_weight_radio.setChecked(True)
 
         edge_group.addWidget(edge_label)
         edge_group.addWidget(edge_unweight_radio)

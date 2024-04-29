@@ -14,7 +14,7 @@ def closeness(window, node_list):
         return
     if not window.graphic_view.edges:
         window.side_label.setText('No edges in the graph!')
-        window.side_table.update_table({'-': '-'})
+        window.side_table.update_table({'-': '-'}, 'Node')
         window.dock_widget.setHidden(False)
         return
 

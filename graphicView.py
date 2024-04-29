@@ -1,10 +1,11 @@
 from PyQt6 import QtGui
 from PyQt6.QtCore import QTimer, QPointF, Qt, QPoint
-from PyQt6.QtGui import QPainter, QAction, QPixmap
+from PyQt6.QtGui import QPainter, QAction
 from PyQt6.QtWidgets import QGraphicsView, QGraphicsScene, QMenu
 
 from DataStructures.edgeObject import EdgeObject
 from DataStructures.nodeObject import NodeObject, node_list
+from weightDialog import WeightDialog
 from style_sheets import context_menu_style
 
 
@@ -198,7 +199,7 @@ class GraphicView(QGraphicsView):
                 tgt(self.main_window, node_list)
             elif algo_text == 'Algorithm: Degree Centrality':
                 from Algorithms.StandardCentralities.degreeCentrality import degreeCentrality
-                degreeCentrality(self.main_window, node_list)
+                degreeCentrality(self.main_window, node_list, self.main_window.weighted)
             elif algo_text == 'Algorithm: Edge Betweenness':
                 from Algorithms.StandardCentralities.edgeBetweenness import edgeBetweenness
                 edgeBetweenness(self.main_window, node_list)
@@ -339,10 +340,26 @@ class GraphicView(QGraphicsView):
 
         destination_node = self.scene.itemAt(pos.x(), pos.y(), self.transform())
         if isinstance(destination_node, NodeObject) and destination_node != self.source_node:
-            self.source_node.neighbors.add(destination_node)
-            destination_node.neighbors.add(self.source_node)
+            if not self.main_window.weighted:
+                self.source_node.neighbors.add(destination_node)
+                destination_node.neighbors.add(self.source_node)
 
-            new_edge = EdgeObject(self.source_node, destination_node)
+                new_edge = EdgeObject(self.source_node, destination_node)
+            else:
+                dialog = WeightDialog()
+                weight_input = dialog.get_user_input()
+                if not weight_input:
+                    self.source_node.neighbors.add(destination_node)
+                    destination_node.neighbors.add(self.source_node)
+
+                    new_edge = EdgeObject(self.source_node, destination_node)
+                    self.main_window.weighted = False
+                else:
+                    self.source_node.neighbors_weighted[destination_node] = weight_input
+                    destination_node.neighbors_weighted[self.source_node] = weight_input
+
+                    new_edge = EdgeObject(self.source_node, destination_node, weight_input)
+
             self.edges.append(new_edge)
             self.scene.addItem(new_edge)
 

@@ -6,40 +6,39 @@ class NetworkGenerationDialog(QDialog):
     Custom QDialog class allowing the generation of a graph with properties specified by user input.
 
     Attributes:
-        - layout (QVBoxLayout): The layout of the widget
-        - label_nodes (QLabel): Text prompting input of node number of the graph
         - edit_nodes (QLineEdit): Input space for the node number
-        - label_density (QLabel): Text prompting input of density of the graph
         - edit_density (QLineEdit): Input space for the density
-        - button_box (QDialogButtonBox): confirmation button
     '''
     def __init__(self):
         '''
-        Initialize a new instance of NodeObject
+        Initialize a new instance of NetworkGenerationDialog
         '''
         super(NetworkGenerationDialog, self).__init__()
 
-        self.setWindowTitle('Network Properties')
-        self.layout = QVBoxLayout(self)
-
-        self.label_nodes = QLabel('Number of Nodes:')
         self.edit_nodes = QLineEdit(self)
-
-        self.label_density = QLabel('Network Density (0 to 1):')
         self.edit_density = QLineEdit(self)
+        self.setWindowTitle('Network Properties')
+        self.initUI()
 
-        self.button_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
+    def initUI(self):
+        '''
+        Initialize dialog window's UI
+        '''
+        layout = QVBoxLayout(self)
 
-        self.layout.addWidget(QLabel('Generate Random Erdos-Renyi Graph'))
-        self.layout.addSpacing(10)
-        self.layout.addWidget(self.label_nodes)
-        self.layout.addWidget(self.edit_nodes)
-        self.layout.addWidget(self.label_density)
-        self.layout.addWidget(self.edit_density)
-        self.layout.addWidget(self.button_box)
+        button_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
+        button_box.accepted.connect(self.validate_and_accept)
+        button_box.rejected.connect(self.reject)
 
-        self.button_box.accepted.connect(self.validate_and_accept)
-        self.button_box.rejected.connect(self.reject)
+        layout.addWidget(QLabel('Generate Random Erdos-Renyi Graph'))
+        layout.addSpacing(10)
+        layout.addWidget(QLabel('Number of Nodes:'))
+        layout.addWidget(self.edit_nodes)
+        layout.addWidget(QLabel('Network Density (0 to 1):'))
+        layout.addWidget(self.edit_density)
+        layout.addWidget(button_box)
+
+        self.setLayout(layout)
 
     def validate_and_accept(self):
         if self.validate_input():
@@ -68,7 +67,7 @@ class NetworkGenerationDialog(QDialog):
 
         if nodes <= 0 or density < 0 or density > 1:
             QMessageBox.warning(self, 'Invalid Input',
-                                'Please enter positive values for number of nodes and a network density between 0 and 1.')
+                                'Please enter positive values for the number of nodes and a network density between 0 and 1.')
             return False
 
         return True
