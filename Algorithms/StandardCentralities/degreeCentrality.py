@@ -16,7 +16,7 @@ def degreeCentrality(window, node_list, weighted):
         return
 
     if not weighted:
-        degrees = {node.key: len(node.neighbors) for node in node_list}
+        degrees = {node.key: len(node.neighbors_weighted) for node in node_list}
     else:
         degrees = {node.key: sum(node.neighbors_weighted.values()) for node in node_list}
 

@@ -19,7 +19,7 @@ def save_graph(window, save_path, file_format):
     '''
     if file_format == 'json':
         nodes_data = [{'key': node.key, 'x': node.x(), 'y': node.y(), 'color': node.color} for node in node_list]
-        edges_data = [[node_list.index(edge.node1), node_list.index(edge.node2)] for edge in window.graphic_view.edges]
+        edges_data = [[node_list.index(edge.node1), node_list.index(edge.node2), edge.weight] for edge in window.graphic_view.edges]
 
         graph_data = {'nodes': nodes_data, 'edges': edges_data}
 
@@ -33,7 +33,7 @@ def save_graph(window, save_path, file_format):
 
             txt_file.write("\nEdges:\n")
             for edge in window.graphic_view.edges:
-                txt_file.write(f"{node_list.index(edge.node1)} {node_list.index(edge.node2)}\n")
+                txt_file.write(f"{node_list.index(edge.node1)} {node_list.index(edge.node2)} {edge.weight}\n")
 
     window.saved = True
 
@@ -70,11 +70,14 @@ def load_graph(window, open_path):
                         values = line.split()
                         graph_data['nodes'].append({'key': int(values[0]), 'x': float(values[1]), 'y': float(values[2]), 'color': values[3]})
                     elif mode == 'edges':
-                        node1_key, node2_key = map(int, line.split())
-                        graph_data['edges'].append([node1_key, node2_key])
+                        values = line.split()
+                        # node1_key, node2_key = map(int, line.split())
+                        graph_data['edges'].append([int(values[0]), int(values[1]), float(values[2]) if values[2] != 'None' else None])
 
         nodes_data = graph_data.get('nodes', [])
         edges_data = graph_data.get('edges', [])
+        print('edges_data')
+        print(edges_data)
 
         # Create nodes
         for node in nodes_data:
@@ -82,10 +85,11 @@ def load_graph(window, open_path):
 
         # Create edges
         for edge_data in edges_data:
-            if len(edge_data) == 2:
+            if len(edge_data) == 3:
                 node1 = node_list[edge_data[0]]
                 node2 = node_list[edge_data[1]]
-                window.graphic_view.addLink(node1, node2)
+                weight = edge_data[2]
+                window.graphic_view.addLink(node1, node2, weight)
 
         window.saved = True
 

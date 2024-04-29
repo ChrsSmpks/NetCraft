@@ -210,17 +210,21 @@ class GraphicView(QGraphicsView):
                 from Algorithms.StandardCentralities.closeness import closeness
                 closeness(self.main_window, node_list)
 
-    def addLink(self, node1, node2):
+    def addLink(self, node1, node2, weight=None):
         '''
         Add a link between 2 nodes and update the status bar and centrality table accordingly
 
         Parameters:
             - node1, node2 (NodeObject): Nodes which the edge connects.
         '''
-        node1.neighbors.add(node2)
-        node2.neighbors.add(node1)
+        if not weight:
+            node1.neighbors.add(node2)
+            node2.neighbors.add(node1)
 
-        new_edge = EdgeObject(node1, node2)
+        node1.neighbors_weighted[node2] = weight
+        node2.neighbors_weighted[node1] = weight
+
+        new_edge = EdgeObject(node1, node2, weight)
         new_edge.setZValue(1)
         self.edges.append(new_edge)
         self.scene.addItem(new_edge)
@@ -239,8 +243,12 @@ class GraphicView(QGraphicsView):
         self.scene.removeItem(link)
         self.edges.remove(link)
 
-        link.node1.neighbors.discard(link.node2)
-        link.node2.neighbors.discard(link.node1)
+        if not self.main_window.weighted:
+            link.node1.neighbors.discard(link.node2)
+            link.node2.neighbors.discard(link.node1)
+
+        link.node1.neighbors_weighted.pop(link.node2)
+        link.node2.neighbors_weighted.pop(link.node1)
 
         self.main_window.statusBar().showMessage(f'Nodes: {len(node_list)} | Edges: {len(self.edges)} | Custom Graph')
         self.main_window.saved = False
@@ -309,10 +317,15 @@ class GraphicView(QGraphicsView):
 
         # Clear the edges list from the deleted node
         node.neighbors.clear()
+        node.neighbors_weighted.clear()
 
         # Remove the deleted node from the neighbor sets of other nodes
+        if not self.main_window.weighted:
+            for other_node in node_list:
+                other_node.neighbors.discard(node)
         for other_node in node_list:
-            other_node.neighbors.discard(node)
+            if node in other_node.neighbors_weighted.keys():
+                other_node.neighbors_weighted.pop(node)
 
         self.main_window.statusBar().showMessage(f'Nodes: {len(node_list)} | Edges: {len(self.edges)} | Custom Graph')
         self.main_window.saved = False
@@ -340,11 +353,11 @@ class GraphicView(QGraphicsView):
 
         destination_node = self.scene.itemAt(pos.x(), pos.y(), self.transform())
         if isinstance(destination_node, NodeObject) and destination_node != self.source_node:
+            weight_input = None
             if not self.main_window.weighted:
                 self.source_node.neighbors.add(destination_node)
                 destination_node.neighbors.add(self.source_node)
-
-                new_edge = EdgeObject(self.source_node, destination_node)
+                #new_edge = EdgeObject(self.source_node, destination_node)
             else:
                 dialog = WeightDialog()
                 weight_input = dialog.get_user_input()
@@ -352,13 +365,13 @@ class GraphicView(QGraphicsView):
                     self.source_node.neighbors.add(destination_node)
                     destination_node.neighbors.add(self.source_node)
 
-                    new_edge = EdgeObject(self.source_node, destination_node)
+                    # new_edge = EdgeObject(self.source_node, destination_node)
                     self.main_window.weighted = False
-                else:
-                    self.source_node.neighbors_weighted[destination_node] = weight_input
-                    destination_node.neighbors_weighted[self.source_node] = weight_input
 
-                    new_edge = EdgeObject(self.source_node, destination_node, weight_input)
+            self.source_node.neighbors_weighted[destination_node] = weight_input
+            destination_node.neighbors_weighted[self.source_node] = weight_input
+
+            new_edge = EdgeObject(self.source_node, destination_node, weight_input)
 
             self.edges.append(new_edge)
             self.scene.addItem(new_edge)
@@ -404,6 +417,7 @@ class GraphicView(QGraphicsView):
         # Reset the neighbor sets of all nodes
         for node in node_list:
             node.neighbors.clear()
+            node.neighbors_weighted.clear()
 
         node_list.clear()
 
