@@ -9,8 +9,8 @@ def edge_incidence_matrix(graph_edges, node_list):
     to a node of the graph.
 
     Parameters:
-         - graph_edges (list of EdgeObject): The edges of the graph
-         - node_list (list of NodeObject): The nodes of the graph
+         - graph_edges (list of Edge): The edges of the graph
+         - node_list (list of Node): The nodes of the graph
 
     Returns:
         - B (numpy.ndarray): Edge Incidence matrix of the graph
@@ -37,7 +37,7 @@ def treeC(window, node_list):
 
     Parameters:
         - window (QMainWindow): The main window of the app
-        - node_list (list of NodeObject): The nodes of the graph
+        - node_list (list of Node): The nodes of the graph
 
     TreeC Algorithm:
         - Construct the Laplacian matrix of the graph

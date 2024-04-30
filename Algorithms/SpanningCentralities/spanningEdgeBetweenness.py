@@ -6,8 +6,8 @@ def get_laplacian_matrix(graph_edges, node_list):
     Creates the Laplacian matrix of the graph by subtracting Adjacency matrix from Degree matrix
 
     Parameters:
-         - graph_edges (list of EdgeObject): The edges of the graph
-         - node_list (list of NodeObject): The nodes of the graph
+         - graph_edges (list of Edge): The edges of the graph
+         - node_list (list of Node): The nodes of the graph
 
     Returns:
         - laplacian_matrix (numpy.ndarray): The Laplacian matrix of the graph
@@ -19,7 +19,7 @@ def get_laplacian_matrix(graph_edges, node_list):
 
     # Populate the Adjacency Matrix
     for edge in graph_edges:
-        # Given that edge.node1 and edge.node2 are NodeObject instances
+        # Given that edge.node1 and edge.node2 are Node instances
         index1 = node_list.index(edge.node1)
         index2 = node_list.index(edge.node2)
 
@@ -67,7 +67,7 @@ def spanEdgeBetw(window, node_list):
 
     Parameters:
         - window (QMainWindow): The main window of the app
-        - node_list (list of NodeObject): The nodes of the graph
+        - node_list (list of Node): The nodes of the graph
 
     Algorithm:
         - Calculate the Laplacian matrix of the graph and a cofactor of it

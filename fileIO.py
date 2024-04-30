@@ -1,7 +1,7 @@
 from PyQt6.QtCore import QPointF
 from PyQt6.QtWidgets import QMessageBox
 
-from DataStructures.nodeObject import node_list
+from DataStructures.node import node_list
 
 import json
 
@@ -49,7 +49,7 @@ def load_graph(window, open_path):
         - open_path (str): The path where the json file is stored
 
     Returns:
-        - node_list (list of NodeObject): The nodes of the graph
+        - node_list (list of Node): The nodes of the graph
     '''
 
     try:
@@ -76,8 +76,6 @@ def load_graph(window, open_path):
 
         nodes_data = graph_data.get('nodes', [])
         edges_data = graph_data.get('edges', [])
-        print('edges_data')
-        print(edges_data)
 
         # Create nodes
         for node in nodes_data:
@@ -92,6 +90,7 @@ def load_graph(window, open_path):
                 window.graphic_view.addLink(node1, node2, weight)
 
         window.saved = True
+        window.weighted = bool(edges_data[0][2])
 
         return node_list
 

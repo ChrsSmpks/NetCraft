@@ -3,12 +3,12 @@ from PyQt6.QtWidgets import QGraphicsLineItem, QGraphicsTextItem
 from PyQt6.QtGui import QPen, QColor
 
 
-class EdgeObject(QGraphicsLineItem):
+class Edge(QGraphicsLineItem):
     '''
     Custom QGraphicsLineItem class representing an edge.
 
     Attributes:
-        - node1, node2 (NodeObject): Nodes which the edge connects.
+        - node1, node2 (Node): Nodes which the edge connects.
         - weight (bool): Indicates whether the edge is weighted.
         - graphic_weight (QGraphicsTextItem): For visual representation of the weight.
     '''
@@ -17,7 +17,7 @@ class EdgeObject(QGraphicsLineItem):
         Initialize a new instance of EdgeObject
 
         Parameters:
-             - node1, node2 (NodeObject): Nodes which the edge connects.
+             - node1, node2 (Node): Nodes which the edge connects.
         '''
         super().__init__()
 
@@ -71,7 +71,7 @@ class EdgeObject(QGraphicsLineItem):
         Finds the point on the node closest to the reference node.
 
         Parameters:
-            - node, reference_node (NodeObject): Nodes which the edge connects.
+            - node, reference_node (Node): Nodes which the edge connects.
 
         Returns:
             - QPointF: The point of the node closest to the reference node.

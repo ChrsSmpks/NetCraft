@@ -3,16 +3,15 @@ from PyQt6.QtWidgets import QGraphicsPixmapItem, QGraphicsTextItem
 from PyQt6.QtGui import QPixmap, QColor
 
 
-class NodeObject(QGraphicsPixmapItem):
+class Node(QGraphicsPixmapItem):
     '''
     Custom QGraphicsPixmapItem class representing a node.
 
     Attributes:
         - key (int): Node's key
-        - neiboghbors (set of NodeObject): Stores all neighbors of the node.
         - neighbors_weighted (dictionary of NodeObject): Stores all neighbors of the node and the weight between them.
         - color (str): The color of the node.
-        - edges (list of EdgeObject): List to keep track of connected edges.
+        - edges (list of Edge): List to keep track of connected edges.
         - graphic_key (QGraphicsTextItem): For visual representation of the key.
     '''
     def __init__(self, key, x, y, edges, color):
@@ -23,13 +22,12 @@ class NodeObject(QGraphicsPixmapItem):
             - key (int): Node's key.
             - x (float): x coordinate of the node.
             - y (float): y coordinate of the node.
-            - edges (list of EdgeObject): List to keep track of connected edges.
+            - edges (list of Edge): List to keep track of connected edges.
             - color (str): The color of the node.
         '''
         super().__init__()
 
         self.key = key
-        self.neighbors = set()
         self.neighbors_weighted = {}
 
         self.color = color

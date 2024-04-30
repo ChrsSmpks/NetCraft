@@ -4,7 +4,7 @@ def degreeCentrality(window, node_list, weighted):
 
     Parameters:
         - window (QMainWindow): The main window of the app
-        - node_list (list of NodeObject): The nodes of the graph
+        - node_list (list of Node): The nodes of the graph
     '''
 
     if not node_list:

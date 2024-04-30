@@ -3,8 +3,8 @@ from PyQt6.QtCore import QTimer, QPointF, Qt, QPoint
 from PyQt6.QtGui import QPainter, QAction
 from PyQt6.QtWidgets import QGraphicsView, QGraphicsScene, QMenu
 
-from DataStructures.edgeObject import EdgeObject
-from DataStructures.nodeObject import NodeObject, node_list
+from DataStructures.edge import Edge
+from DataStructures.node import Node, node_list
 from weightDialog import WeightDialog
 from style_sheets import context_menu_style
 
@@ -16,7 +16,7 @@ class GraphicView(QGraphicsView):
     Attributes:
         - main_window (QMainWindow): The main window of the app
         - scene (QGraphicsScene): Place to display the graph
-        - edges (list of EdgeObject): List to keep track of connected edges
+        - edges (list of Edge): List to keep track of connected edges
         - zoom_factor (float): Zoom factor for zooming operations
         - zoom_level (int): Zoom level
         - timer (QTimer): Timer to continuously update the view
@@ -97,9 +97,9 @@ class GraphicView(QGraphicsView):
         item = self.itemAt(pos)
         if item is None:
             self.showEmptySpaceContextMenu(pos)
-        elif isinstance(item, NodeObject):
+        elif isinstance(item, Node):
             self.showNodeContextMenu(item, pos)
-        elif isinstance(item, EdgeObject):
+        elif isinstance(item, Edge):
             # Show context menu for a link
             self.showLinkContextMenu(item, pos)
 
@@ -126,7 +126,7 @@ class GraphicView(QGraphicsView):
         Displays the context menu containing actions Delete Node, Add Link when right-clicking on a node
 
         Parameters:
-            - node (NodeObject): the node that was right-clicked
+            - node (Node): the node that was right-clicked
             - pos (QPointF): position to display the context menu (where the user right-clicked)
         '''
         context_menu = QMenu(self)
@@ -174,7 +174,7 @@ class GraphicView(QGraphicsView):
         Changes the icon of a node to have a different color.
 
         Parameters:
-            - node (NodeObject): The node to change color of
+            - node (Node): The node to change color of
             - color (String): The new color to change to
         '''
         node.changeColor(color)
@@ -215,16 +215,12 @@ class GraphicView(QGraphicsView):
         Add a link between 2 nodes and update the status bar and centrality table accordingly
 
         Parameters:
-            - node1, node2 (NodeObject): Nodes which the edge connects.
+            - node1, node2 (Node): Nodes which the edge connects.
         '''
-        if not weight:
-            node1.neighbors.add(node2)
-            node2.neighbors.add(node1)
-
         node1.neighbors_weighted[node2] = weight
         node2.neighbors_weighted[node1] = weight
 
-        new_edge = EdgeObject(node1, node2, weight)
+        new_edge = Edge(node1, node2, weight)
         new_edge.setZValue(1)
         self.edges.append(new_edge)
         self.scene.addItem(new_edge)
@@ -237,15 +233,11 @@ class GraphicView(QGraphicsView):
         Delete a link and update the status bar and centrality table accordingly
 
         Parameters:
-            - link (EdgeObject): Link to delete
+            - link (Edge): Link to delete
         '''
 
         self.scene.removeItem(link)
         self.edges.remove(link)
-
-        if not self.main_window.weighted:
-            link.node1.neighbors.discard(link.node2)
-            link.node2.neighbors.discard(link.node1)
 
         link.node1.neighbors_weighted.pop(link.node2)
         link.node2.neighbors_weighted.pop(link.node1)
@@ -278,9 +270,9 @@ class GraphicView(QGraphicsView):
             # scene_pos = self.main_window.graphic_view.mapToScene(pos.toPoint())
 
         if not node_list:
-            new_node = NodeObject(0, scene_pos.x(), scene_pos.y(), self.edges, color)
+            new_node = Node(0, scene_pos.x(), scene_pos.y(), self.edges, color)
         else:
-            new_node = NodeObject(node_list[-1].key + 1, scene_pos.x(), scene_pos.y(), self.edges, color)
+            new_node = Node(node_list[-1].key + 1, scene_pos.x(), scene_pos.y(), self.edges, color)
         node_list.append(new_node)
 
         new_node.setZValue(2)
@@ -298,7 +290,7 @@ class GraphicView(QGraphicsView):
         Delete a node and update the status bar and centrality table accordingly
 
         Parameters:
-            - node (NodeObject): node to delete
+            - node (Node): node to delete
         '''
 
         # Remove only the edges connected to the deleted node
@@ -316,13 +308,9 @@ class GraphicView(QGraphicsView):
         node_list.remove(node)
 
         # Clear the edges list from the deleted node
-        node.neighbors.clear()
         node.neighbors_weighted.clear()
 
         # Remove the deleted node from the neighbor sets of other nodes
-        if not self.main_window.weighted:
-            for other_node in node_list:
-                other_node.neighbors.discard(node)
         for other_node in node_list:
             if node in other_node.neighbors_weighted.keys():
                 other_node.neighbors_weighted.pop(node)
@@ -337,7 +325,7 @@ class GraphicView(QGraphicsView):
         Starts adding a link between 2 nodes. Sets the source node and waits for the second one to be clicked
 
         Parameters:
-             - node (NodeObject): First of the 2 nodes to add a link
+             - node (Node): First of the 2 nodes to add a link
         '''
 
         # Set the current node for linking
@@ -352,26 +340,19 @@ class GraphicView(QGraphicsView):
         '''
 
         destination_node = self.scene.itemAt(pos.x(), pos.y(), self.transform())
-        if isinstance(destination_node, NodeObject) and destination_node != self.source_node:
+        if isinstance(destination_node, Node) and destination_node != self.source_node:
             weight_input = None
-            if not self.main_window.weighted:
-                self.source_node.neighbors.add(destination_node)
-                destination_node.neighbors.add(self.source_node)
-                #new_edge = EdgeObject(self.source_node, destination_node)
-            else:
+
+            if self.main_window.weighted:
                 dialog = WeightDialog()
                 weight_input = dialog.get_user_input()
                 if not weight_input:
-                    self.source_node.neighbors.add(destination_node)
-                    destination_node.neighbors.add(self.source_node)
-
-                    # new_edge = EdgeObject(self.source_node, destination_node)
                     self.main_window.weighted = False
 
             self.source_node.neighbors_weighted[destination_node] = weight_input
             destination_node.neighbors_weighted[self.source_node] = weight_input
 
-            new_edge = EdgeObject(self.source_node, destination_node, weight_input)
+            new_edge = Edge(self.source_node, destination_node, weight_input)
 
             self.edges.append(new_edge)
             self.scene.addItem(new_edge)
@@ -416,7 +397,6 @@ class GraphicView(QGraphicsView):
 
         # Reset the neighbor sets of all nodes
         for node in node_list:
-            node.neighbors.clear()
             node.neighbors_weighted.clear()
 
         node_list.clear()

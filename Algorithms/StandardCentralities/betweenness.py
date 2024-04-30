@@ -4,7 +4,7 @@ def betweenness(window, node_list):
 
     Parameters:
         - window (QMainWindow): The main window of the app
-        - node_list (list of NodeObject): The nodes of the graph
+        - node_list (list of Node): The nodes of the graph
 
     Algorithm:
         - Initialize betweenness centrality dictionary
@@ -39,7 +39,7 @@ def betweenness(window, node_list):
         while queue:
             v = queue.pop(0)
             S.append(v)
-            for neighbor in v.neighbors:
+            for neighbor in v.neighbors_weighted.keys():
                 if distances[neighbor.key] < 0:
                     queue.append(neighbor)
                     distances[neighbor.key] = distances[v.key] + 1

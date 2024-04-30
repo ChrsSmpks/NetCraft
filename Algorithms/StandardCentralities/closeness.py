@@ -7,7 +7,7 @@ def closeness(window, node_list):
 
     Parameters:
         - window (QMainWindow): The main window of the app
-        - node_list (list of NodeObject): The nodes of the graph
+        - node_list (list of Node): The nodes of the graph
     '''
 
     if not node_list:
@@ -30,7 +30,7 @@ def closeness(window, node_list):
         while queue:
             current_node = queue.popleft()
 
-            for neighbor in current_node.neighbors:
+            for neighbor in current_node.neighbors_weighted.keys():
                 if distances[neighbor.key] < 0:
                     queue.append(neighbor)
                     distances[neighbor.key] = distances[current_node.key] + 1

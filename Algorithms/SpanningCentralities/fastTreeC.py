@@ -10,7 +10,7 @@ def fastTreeC(window, node_list):
 
     Parameters:
         - window (QMainWindow): The main window of the app
-        - node_list (list of NodeObject): The nodes of the graph
+        - node_list (list of Node): The nodes of the graph
 
     Fast-TreeC Algorithm:
         - Construct the Laplacian matrix of the graph

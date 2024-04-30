@@ -14,7 +14,7 @@ from Algorithms.SpanningCentralities.fastTreeC import fastTreeC
 from Algorithms.SpanningCentralities.tgt import tgt
 from netGenerationDialog import NetworkGenerationDialog
 from propertiesDialog import PropertiesDialog
-from DataStructures.nodeObject import node_list
+from DataStructures.node import node_list
 from fileIO import save_graph, load_graph
 from style_sheets import menu_style
 
@@ -215,7 +215,7 @@ def generate_net(window):
             window.graphic_view.addLink(node1, node2)
 
         for node in node_list:
-            if not node.neighbors:
+            if not node.neighbors_weighted.keys():
                 import random
                 while True:
                     rnd_node_idx = random.randint(0, len(node_list)-1)
