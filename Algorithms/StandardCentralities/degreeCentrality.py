@@ -16,9 +16,9 @@ def degreeCentrality(window, node_list, weighted):
         return
 
     if not weighted:
-        degrees = {node.key: len(node.neighbors_weighted) for node in node_list}
+        degrees = {node.key: len(node.neighbors) for node in node_list}
     else:
-        degrees = {node.key: sum(node.neighbors_weighted.values()) for node in node_list}
+        degrees = {node.key: sum(node.neighbors.values()) for node in node_list}
 
     window.side_table.update_table(degrees, 'Node')
     window.side_label.setText('Algorithm: Degree Centrality')

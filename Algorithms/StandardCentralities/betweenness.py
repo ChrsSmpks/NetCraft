@@ -31,21 +31,42 @@ def betweenness(window, node_list):
         pred = {node.key: [] for node in node_list}             # list of predecessors on shortest paths from source
         shortest_paths = {node.key: 0 for node in node_list}    # number of shortest path from source to every other node
         shortest_paths[node.key] = 1
-        distances = {node.key: -1 for node in node_list}        # distances from source
+        distances = {node.key: float('inf') for node in node_list}        # distances from source
         distances[node.key] = 0
         queue = [node]
 
-        # Breadth-first search
-        while queue:
-            v = queue.pop(0)
-            S.append(v)
-            for neighbor in v.neighbors_weighted.keys():
-                if distances[neighbor.key] < 0:
-                    queue.append(neighbor)
-                    distances[neighbor.key] = distances[v.key] + 1
-                if distances[neighbor.key] == distances[v.key] + 1:
-                    shortest_paths[neighbor.key] += shortest_paths[v.key]
-                    pred[neighbor.key].append(v)
+        if not window.weighted:
+            # Breadth-first search
+            while queue:
+                v = queue.pop(0)
+                S.append(v)
+                for neighbor in v.neighbors.keys():
+                    if distances[neighbor.key] == float('inf'):
+                        queue.append(neighbor)
+                        distances[neighbor.key] = distances[v.key] + 1
+                    if distances[neighbor.key] == distances[v.key] + 1:
+                        shortest_paths[neighbor.key] += shortest_paths[v.key]
+                        pred[neighbor.key].append(v)
+        else:
+            while queue:
+                # Extract v from queue with minimum distance
+                v = min(queue, key=lambda x: distances[x.key])
+                queue.remove(v)
+                S.append(v)
+                for neighbor in v.neighbors.keys():
+                    if distances[neighbor.key] > distances[v.key] + v.neighbors[neighbor]:
+                        distances[neighbor.key] = distances[v.key] + v.neighbors[neighbor]
+
+                        # Insert/update neighbor in queue with new key
+                        if neighbor in queue:
+                            queue.remove(neighbor)
+                        queue.append(neighbor)
+
+                        shortest_paths[neighbor.key] = 0
+                        pred[neighbor.key].clear()
+                    if distances[neighbor.key] == distances[v.key] + v.neighbors[neighbor]:
+                        shortest_paths[neighbor.key] += shortest_paths[v.key]
+                        pred[neighbor.key].append(v)
 
         # Back-propagation of dependencies
         dependencies = {node.key: 0 for node in node_list}

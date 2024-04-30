@@ -76,8 +76,8 @@ def calTau(graph_edges, edge, epsilon, eigenvalues, feature_vectors, node_list):
     omega = len(feature_vectors)
 
     # Calculate original tau_ij
-    deg1 = len(edge.node1.neighbors_weighted.keys())
-    deg2 = len(edge.node2.neighbors_weighted.keys())
+    deg1 = len(edge.node1.neighbors.keys())
+    deg2 = len(edge.node2.neighbors.keys())
 
     a = np.log((1 / deg1 + 1 / deg2 - 2 / (deg1 * deg2)) / (epsilon * (1 - eigenvalues[2])))
     b = np.log(1 / np.abs(eigenvalues[2]))
@@ -122,7 +122,7 @@ def maxCalTau(node, graph_edges, epsilon, eigenvalues, feature_vectors, node_lis
     tau_p = 1
 
     # Iterate over the neighboring nodes of the current node
-    for neighbor in node.neighbors_weighted.keys():
+    for neighbor in node.neighbors.keys():
         # Find the edge that connects the current node and its neighbor
         for edge in graph_edges:
             if (edge.node1 == node and edge.node2 == neighbor) or (edge.node1 == node and edge.node2 == node):
@@ -154,8 +154,8 @@ def tgt(window, node_list):
     for node in node_list:
         tp = maxCalTau(node, window.graphic_view.edges, epsilon, eigenvalues, feature_vectors, node_list)
 
-        for neighbor in node.neighbors_weighted.keys():
-            gt[node_list.index(node), node_list.index(neighbor)] = 1 / len(node.neighbors_weighted.keys())
+        for neighbor in node.neighbors.keys():
+            gt[node_list.index(node), node_list.index(neighbor)] = 1 / len(node.neighbors.keys())
 
         # Initialize transition probability matrices
         p = [np.zeros((node_num, node_num), dtype=float) for _ in range(tp)]
@@ -174,12 +174,12 @@ def tgt(window, node_list):
 
             for other_node in node_list:
                 if p[l - 1][node_list.index(other_node), node_list.index(node)] > 0:
-                    for neighbor in node.neighbors_weighted.keys():
-                        p[l][node_list.index(neighbor), node_list.index(node)] += p[l][node_list.index(other_node), node_list.index(node)] / len(neighbor.neighbors_weighted.keys())
+                    for neighbor in node.neighbors.keys():
+                        p[l][node_list.index(neighbor), node_list.index(node)] += p[l][node_list.index(other_node), node_list.index(node)] / len(neighbor.neighbors.keys())
 
-            for neighbor in node.neighbors_weighted.keys():
-                gt[node_list.index(node), node_list.index(neighbor)] += p[l][node_list.index(node), node_list.index(node)] / len(node.neighbors_weighted.keys()) - p[l][
-                    node_list.index(neighbor), node_list.index(node)] / len(node.neighbors_weighted.keys())
+            for neighbor in node.neighbors.keys():
+                gt[node_list.index(node), node_list.index(neighbor)] += p[l][node_list.index(node), node_list.index(node)] / len(node.neighbors.keys()) - p[l][
+                    node_list.index(neighbor), node_list.index(node)] / len(node.neighbors.keys())
 
     st = {}
     for edge in window.graphic_view.edges:
