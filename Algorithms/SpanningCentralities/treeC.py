@@ -58,12 +58,24 @@ def treeC(window, node_list):
         window.dock_widget.setHidden(False)
         return
 
-    # Initialize matrices and Laplacian matrix
+    # Initialize matrices
     Z = np.empty((0, len(node_list)))
-    laplacian_matrix = get_laplacian_matrix(window.graphic_view.edges, node_list)
 
     # Construct edge incidence matrix B
     B = edge_incidence_matrix(window.graphic_view.edges, node_list)
+
+    # Initialize Laplacian matrix
+    if not window.weighted:
+        laplacian_matrix = get_laplacian_matrix(window.graphic_view.edges, node_list)
+    else:
+        m = len(window.graphic_view.edges)
+        W = np.zeros((m, m))
+
+        for i, edge in enumerate(window.graphic_view.edges):
+            W[i, i] = edge.weight if edge.weight is not None else 1
+
+        B_T = np.transpose(B)
+        laplacian_matrix = np.dot(B_T, np.dot(W, B))
 
     # Construct random projection matrix Q
     k = int(np.ceil(np.log2(len(node_list))))  # k = O(log n)

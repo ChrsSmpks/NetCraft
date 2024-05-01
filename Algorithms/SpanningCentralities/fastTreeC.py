@@ -30,11 +30,21 @@ def fastTreeC(window, node_list):
         window.dock_widget.setHidden(False)
         return
 
-    # Compute Laplacian matrix L
-    L = get_laplacian_matrix(window.graphic_view.edges, node_list)
-
     # Construct the Edge Incidence matrix
     B = edge_incidence_matrix(window.graphic_view.edges, node_list)
+
+    # Compute Laplacian matrix L
+    if not window.weighted:
+        L = get_laplacian_matrix(window.graphic_view.edges, node_list)
+    else:
+        m = len(window.graphic_view.edges)
+        W = np.zeros((m, m))
+
+        for i, edge in enumerate(window.graphic_view.edges):
+            W[i, i] = edge.weight if edge.weight is not None else 1
+
+        B_T = np.transpose(B)
+        L = np.dot(B_T, np.dot(W, B))
 
     # Number of nodes and edges in the graph
     n = len(node_list)
