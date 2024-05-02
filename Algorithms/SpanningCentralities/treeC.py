@@ -1,4 +1,5 @@
 import numpy as np
+from PyQt6.QtWidgets import QMessageBox
 
 from .spanningEdgeBetweenness import get_laplacian_matrix
 
@@ -57,6 +58,12 @@ def treeC(window, node_list):
         window.side_table.update_table({'-': '-'}, 'Edge')
         window.dock_widget.setHidden(False)
         return
+    for node in node_list:
+        if not node.neighbors:
+            msg = QMessageBox(QMessageBox.Icon.Warning, 'Error', 'Centralities cannot be computed because the graph '
+                                                                 'lacks connectivity.', QMessageBox.StandardButton.Ok)
+            msg.exec()
+            return
 
     # Initialize matrices
     Z = np.empty((0, len(node_list)))
@@ -80,7 +87,7 @@ def treeC(window, node_list):
     # Construct random projection matrix Q
     k = int(np.ceil(np.log2(len(node_list))))  # k = O(log n)
     m = len(window.graphic_view.edges)
-    Q = np.random.choice([-1/np.sqrt(k), 0, 1/np.sqrt(k)], size=(k, m))
+    Q = np.random.choice([-1 / np.sqrt(k), 0, 1 / np.sqrt(k)], size=(k, m))
 
     # Compute Y = QB
     Y = np.dot(Q, B)
@@ -103,7 +110,7 @@ def treeC(window, node_list):
         key1, key2 = edge.node1.key, edge.node2.key
         u, v = node_list.index(edge.node1), node_list.index(edge.node2)
 
-        R[tuple(sorted((key1, key2)))] = round(np.linalg.norm(Z[:, u] - Z[:, v])**2, 4)
+        R[tuple(sorted((key1, key2)))] = round(np.linalg.norm(Z[:, u] - Z[:, v]) ** 2, 4)
 
     window.side_table.update_table(R, 'Edge')
     window.side_label.setText('Algorithm: TreeC')

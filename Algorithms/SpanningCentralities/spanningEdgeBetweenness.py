@@ -1,6 +1,7 @@
 from itertools import groupby
 
 import numpy as np
+from PyQt6.QtWidgets import QMessageBox
 
 
 def get_laplacian_matrix(graph_edges, node_list):
@@ -87,6 +88,12 @@ def spanEdgeBetw(window, node_list):
         window.side_table.update_table({'-': '-'}, 'Edge')
         window.dock_widget.setHidden(False)
         return
+    for node in node_list:
+        if not node.neighbors:
+            msg = QMessageBox(QMessageBox.Icon.Warning, 'Error', 'Centralities cannot be computed because the graph '
+                                                                 'lacks connectivity.', QMessageBox.StandardButton.Ok)
+            msg.exec()
+            return
 
     laplacian_matrix = get_laplacian_matrix(window.graphic_view.edges, node_list)
 
@@ -110,7 +117,8 @@ def spanEdgeBetw(window, node_list):
         trees_for_edges = np.linalg.det(laplacian_ij)
 
         # Store the result for the edge
-        spanning_betweenness_for_edges[tuple(sorted((edge.node1.key, edge.node2.key)))] = round(trees_for_edges / cofactor, 4)
+        spanning_betweenness_for_edges[tuple(sorted((edge.node1.key, edge.node2.key)))] = round(
+            trees_for_edges / cofactor, 4)
 
     window.side_table.update_table(spanning_betweenness_for_edges, 'Edge')
     window.side_label.setText('Algorithm: Spanning Edge Betweenness')

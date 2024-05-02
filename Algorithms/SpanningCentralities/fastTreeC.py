@@ -1,4 +1,5 @@
 import numpy as np
+from PyQt6.QtWidgets import QMessageBox
 
 from .spanningEdgeBetweenness import get_laplacian_matrix
 from .treeC import edge_incidence_matrix
@@ -29,6 +30,12 @@ def fastTreeC(window, node_list):
         window.side_table.update_table({'-': '-'}, 'Edge')
         window.dock_widget.setHidden(False)
         return
+    for node in node_list:
+        if not node.neighbors:
+            msg = QMessageBox(QMessageBox.Icon.Warning, 'Error', 'Centralities cannot be computed because the graph '
+                                                                 'lacks connectivity.', QMessageBox.StandardButton.Ok)
+            msg.exec()
+            return
 
     # Construct the Edge Incidence matrix
     B = edge_incidence_matrix(window.graphic_view.edges, node_list)
@@ -57,7 +64,7 @@ def fastTreeC(window, node_list):
     k = int(np.ceil(np.log2(n)))  # k = O(log n)
     for i in range(k):
         # Construct a random vector q
-        q = np.random.choice([-1/np.sqrt(k), 0, 1/np.sqrt(k)], size=(1, m))
+        q = np.random.choice([-1 / np.sqrt(k), 0, 1 / np.sqrt(k)], size=(1, m))
 
         # Compute y = qB
         y = np.dot(q, B)
@@ -82,7 +89,7 @@ def fastTreeC(window, node_list):
                 R[tuple(sorted((key1, key2)))] = 0
 
             # Update resistance for the edge
-            R[tuple(sorted((key1, key2)))] += np.linalg.norm(z[u] - z[v])**2
+            R[tuple(sorted((key1, key2)))] += np.linalg.norm(z[u] - z[v]) ** 2
 
     for edge in R:
         R[edge] = round(R[edge], 4)

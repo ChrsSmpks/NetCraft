@@ -237,6 +237,11 @@ class GraphicView(QGraphicsView):
         Parameters:
             - node1, node2 (Node): Nodes which the edge connects.
         '''
+        # If edge already exists return
+        for edge in self.edges.copy():  # Use copy to avoid modifying the list during iteration
+            if (edge.node1 == node1 and edge.node2 == node2) or (edge.node1 == node2 and edge.node2 == node1):
+                return
+
         node1.neighbors[node2] = weight
         node2.neighbors[node1] = weight
 
@@ -358,8 +363,14 @@ class GraphicView(QGraphicsView):
         Parameters:
             pos pos (QPointF): Position of the destination.
         '''
-
         destination_node = self.scene.itemAt(pos.x(), pos.y(), self.transform())
+
+        # If edge already exists return
+        for edge in self.edges.copy():  # Use copy to avoid modifying the list during iteration
+            if (edge.node1 == self.source_node and edge.node2 == destination_node) or (
+                    edge.node1 == destination_node and edge.node2 == self.source_node):
+                return
+
         if isinstance(destination_node, Node) and destination_node != self.source_node:
             weight_input = None
 

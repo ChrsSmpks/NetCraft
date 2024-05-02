@@ -1,4 +1,5 @@
 import numpy as np
+from PyQt6.QtWidgets import QMessageBox
 
 
 def get_eigen(graph_edges, node_list):
@@ -95,7 +96,8 @@ def calTau(graph_edges, edge, epsilon, eigenvalues, feature_vectors, node_list):
     # Calculate Y
     Y = 0
     for k in range(2, omega - 1):
-        Y += ((feature_vectors[k][node_list.index(edge.node1)] - feature_vectors[k][node_list.index(edge.node2)]) ** 2) * (1 + eigenvalues[k])
+        Y += ((feature_vectors[k][node_list.index(edge.node1)] - feature_vectors[k][
+            node_list.index(edge.node2)]) ** 2) * (1 + eigenvalues[k])
 
     Y /= (2 * m)
 
@@ -104,8 +106,9 @@ def calTau(graph_edges, edge, epsilon, eigenvalues, feature_vectors, node_list):
         # Calculate Delta_t
         Delta_t = 0
         for k in range(2, omega - 1):
-            Delta_t += ((feature_vectors[k][node_list.index(edge.node1)] - feature_vectors[k][node_list.index(edge.node2)]) ** 2) * (
-                        eigenvalues[k] ** (t + 1)) / (1 - eigenvalues[k])
+            Delta_t += ((feature_vectors[k][node_list.index(edge.node1)] - feature_vectors[k][
+                node_list.index(edge.node2)]) ** 2) * (
+                               eigenvalues[k] ** (t + 1)) / (1 - eigenvalues[k])
 
         Delta_t /= (2 * m)
 
@@ -153,6 +156,12 @@ def tgt(window, node_list):
         window.side_table.update_table({'-': '-'}, 'Edge')
         window.dock_widget.setHidden(False)
         return
+    for node in node_list:
+        if not node.neighbors:
+            msg = QMessageBox(QMessageBox.Icon.Warning, 'Error', 'Centralities cannot be computed because the graph '
+                                                                 'lacks connectivity.', QMessageBox.StandardButton.Ok)
+            msg.exec()
+            return
 
     eigenvalues, feature_vectors = get_eigen(window.graphic_view.edges, node_list)
 
@@ -185,18 +194,23 @@ def tgt(window, node_list):
             for other_node in node_list:
                 if p[l - 1][node_list.index(other_node), node_list.index(node)] > 0:
                     for neighbor in other_node.neighbors.keys():
-                        deg = len(neighbor.neighbors.keys()) if not window.weighted else sum(neighbor.neighbors.values())
-                        p[l][node_list.index(neighbor), node_list.index(node)] += p[l][node_list.index(other_node), node_list.index(node)] / deg
+                        deg = len(neighbor.neighbors.keys()) if not window.weighted else sum(
+                            neighbor.neighbors.values())
+                        p[l][node_list.index(neighbor), node_list.index(node)] += p[l][node_list.index(
+                            other_node), node_list.index(node)] / deg
 
             for neighbor in node.neighbors.keys():
                 deg = len(node.neighbors.keys()) if not window.weighted else sum(node.neighbors.values())
-                gt[node_list.index(node), node_list.index(neighbor)] += p[l][node_list.index(node), node_list.index(node)] / deg - p[l][
-                    node_list.index(neighbor), node_list.index(node)] / deg
+                gt[node_list.index(node), node_list.index(neighbor)] += p[l][node_list.index(node), node_list.index(
+                    node)] / deg - p[l][
+                                                                            node_list.index(neighbor), node_list.index(
+                                                                                node)] / deg
 
     st = {}
     for edge in window.graphic_view.edges:
-        st[tuple(sorted((edge.node1.key, edge.node2.key)))] = round(gt[node_list.index(edge.node1), node_list.index(edge.node2)] + gt[
-            node_list.index(edge.node2), node_list.index(edge.node1)], 4)
+        st[tuple(sorted((edge.node1.key, edge.node2.key)))] = round(
+            gt[node_list.index(edge.node1), node_list.index(edge.node2)] + gt[
+                node_list.index(edge.node2), node_list.index(edge.node1)], 4)
 
     window.side_table.update_table(st, 'Edge')
     window.side_label.setText('Algorithm: TGT')
