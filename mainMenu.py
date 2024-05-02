@@ -7,7 +7,7 @@ from networkx import fruchterman_reingold_layout
 from Algorithms.StandardCentralities.edgeBetweenness import edgeBetweenness
 from Algorithms.StandardCentralities.betweenness import betweenness
 from Algorithms.StandardCentralities.closeness import closeness
-from Algorithms.SpanningCentralities.spanningEdgeBetweenness import spanEdgeBetw
+from Algorithms.SpanningCentralities.spanningEdgeBetweenness import spanEdgeBetw, spanEdgeBetwWeighted
 from Algorithms.StandardCentralities.degreeCentrality import degreeCentrality
 from Algorithms.SpanningCentralities.treeC import treeC
 from Algorithms.SpanningCentralities.fastTreeC import fastTreeC
@@ -137,7 +137,7 @@ def create_spanning_centralities_menu(main_menu, window):
     _tgt = QAction('TGT', centralities_submenu)
 
     # Connect the created actions
-    spanning_edge_btw.triggered.connect(lambda: spanEdgeBetw(window, node_list))
+    spanning_edge_btw.triggered.connect(lambda: connect_spanning_edge_btw(window, node_list))
     treec.triggered.connect(lambda: treeC(window, node_list))
     fastTree.triggered.connect(lambda: fastTreeC(window, node_list))
     _tgt.triggered.connect(lambda: tgt(window, node_list))
@@ -149,6 +149,13 @@ def create_spanning_centralities_menu(main_menu, window):
     centralities_submenu.addAction(_tgt)
 
     return centralities_submenu
+
+
+def connect_spanning_edge_btw(window, node_list):
+    if not window.weighted:
+        spanEdgeBetw(window, node_list)
+    else:
+        spanEdgeBetwWeighted(window, node_list)
 
 
 def create_options_menu(main_menu, window):

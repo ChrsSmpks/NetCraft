@@ -1,3 +1,5 @@
+from itertools import groupby
+
 import numpy as np
 
 
@@ -113,3 +115,7 @@ def spanEdgeBetw(window, node_list):
     window.side_table.update_table(spanning_betweenness_for_edges, 'Edge')
     window.side_label.setText('Algorithm: Spanning Edge Betweenness')
     window.dock_widget.setHidden(False)
+
+
+def spanEdgeBetwWeighted(window, node_list):
+    pass

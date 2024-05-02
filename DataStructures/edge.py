@@ -87,3 +87,15 @@ class Edge(QGraphicsLineItem):
         # Multiply the direction components individually
         return center_point + QPointF(direction.x() * (node.pixmap().width() / 2),
                                       direction.y() * (node.pixmap().height() / 2))
+
+    def updateWeight(self, new_weight):
+        '''
+        Updates the weight for the edge and node's neighbors dictionary.
+
+        Parameters:
+            -new_weight (float): The new weight of the edge.
+        '''
+        self.weight = new_weight
+        self.graphic_weight.setPlainText(str(new_weight))
+        self.node1.neighbors[self.node2] = new_weight
+        self.node2.neighbors[self.node1] = new_weight

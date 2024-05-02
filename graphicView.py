@@ -126,8 +126,8 @@ class GraphicView(QGraphicsView):
         Displays the context menu containing actions Delete Node, Add Link when right-clicking on a node
 
         Parameters:
-            - node (Node): the node that was right-clicked
-            - pos (QPointF): position to display the context menu (where the user right-clicked)
+            - node (Node): The node that was right-clicked.
+            - pos (QPointF): Position to display the context menu (where the user right-clicked).
         '''
         context_menu = QMenu(self)
         context_menu.setStyleSheet(context_menu_style)
@@ -156,10 +156,12 @@ class GraphicView(QGraphicsView):
 
     def showLinkContextMenu(self, link, pos):
         '''
-        Displays the context menu containing action Delete Link when right-clicking on a link
+        Displays the context menu containing action Delete Link and Change Weight (if graph is weighted)
+        when right-clicking on a link.
 
         Parameters:
-            - pos (QPointF): position to display the conext menu (where the user right-clicked)
+            - link (Edge): The edge that was right-clicked.
+            - pos (QPointF): Position to display the conext menu (where the user right-clicked).
         '''
         context_menu = QMenu(self)
         context_menu.setStyleSheet(context_menu_style)
@@ -167,17 +169,35 @@ class GraphicView(QGraphicsView):
         delete_link_action = context_menu.addAction("Delete Link")
         delete_link_action.triggered.connect(lambda: self.deleteLink(link))
 
+        if self.main_window.weighted:
+            change_wait_action = context_menu.addAction("Change Weight")
+            change_wait_action.triggered.connect(lambda: self.changeWeight(link))
+
         context_menu.exec(self.mapToGlobal(pos))
+
+    def changeWeight(self, edge):
+        '''
+        Changes the weight of the given edge.
+
+        Parameters:
+            - edge (Edge): The edge to change weight of.
+        '''
+        dialog = WeightDialog()
+        weight_input = dialog.get_user_input()
+        if weight_input:
+            edge.weight = edge.updateWeight(weight_input)
+            self.main_window.saved = False
 
     def changeColor(self, node, color):
         '''
         Changes the icon of a node to have a different color.
 
         Parameters:
-            - node (Node): The node to change color of
-            - color (String): The new color to change to
+            - node (Node): The node to change color of.
+            - color (String): The new color to change to.
         '''
         node.changeColor(color)
+        self.main_window.saved = False
 
     def recalculate(self):
         '''
@@ -212,7 +232,7 @@ class GraphicView(QGraphicsView):
 
     def addLink(self, node1, node2, weight=None):
         '''
-        Add a link between 2 nodes and update the status bar and centrality table accordingly
+        Add a link between 2 nodes and update the status bar and centrality table accordingly.
 
         Parameters:
             - node1, node2 (Node): Nodes which the edge connects.
@@ -230,10 +250,10 @@ class GraphicView(QGraphicsView):
 
     def deleteLink(self, link):
         '''
-        Delete a link and update the status bar and centrality table accordingly
+        Delete a link and update the status bar and centrality table accordingly.
 
         Parameters:
-            - link (Edge): Link to delete
+            - link (Edge): Link to delete.
         '''
 
         self.scene.removeItem(link)
@@ -249,10 +269,10 @@ class GraphicView(QGraphicsView):
 
     def addNode(self, pos, color='green'):
         '''
-        Add a node to the graph and update the status bar and centrality table accordingly
+        Add a node to the graph and update the status bar and centrality table accordingly.
 
         Parameters:
-            - pos (QPointF): position to add the node
+            - pos (QPointF): Position to add the node.
         '''
 
         # Convert the cursor position to scene coordinates
@@ -287,10 +307,10 @@ class GraphicView(QGraphicsView):
 
     def deleteNode(self, node):
         '''
-        Delete a node and update the status bar and centrality table accordingly
+        Delete a node and update the status bar and centrality table accordingly.
 
         Parameters:
-            - node (Node): node to delete
+            - node (Node): Node to delete.
         '''
 
         # Remove only the edges connected to the deleted node
@@ -322,10 +342,10 @@ class GraphicView(QGraphicsView):
 
     def startAddingLink(self, node):
         '''
-        Starts adding a link between 2 nodes. Sets the source node and waits for the second one to be clicked
+        Starts adding a link between 2 nodes. Sets the source node and waits for the second one to be clicked.
 
         Parameters:
-             - node (Node): First of the 2 nodes to add a link
+             - node (Node): First of the 2 nodes to add a link.
         '''
 
         # Set the current node for linking
@@ -333,10 +353,10 @@ class GraphicView(QGraphicsView):
 
     def sceneMousePressEvent(self, pos):
         '''
-        Selects the second node to add a link and updates the status bar and centrality table accordingly
+        Selects the second node to add a link and updates the status bar and centrality table accordingly.
         
         Parameters:
-            pos pos (QPointF): Position of the destination
+            pos pos (QPointF): Position of the destination.
         '''
 
         destination_node = self.scene.itemAt(pos.x(), pos.y(), self.transform())
@@ -365,7 +385,7 @@ class GraphicView(QGraphicsView):
     def mousePressEvent(self, event):
         '''
         Event handler of the mousePressEvent. If there is a source node has already been selected to add a link connect
-        the second node
+        the second node.
 
         Parameters:
              - event (QMouseEvent)
@@ -383,10 +403,10 @@ class GraphicView(QGraphicsView):
 
     def clearAll(self):
         '''
-        Delete all nodes and edges of the graph and update the status bar and centrality table accordingly
+        Delete all nodes and edges of the graph and update the status bar and centrality table accordingly.
 
         Returns:
-            - 0: If user chose Cancel option in the dialog that pops up
+            - 0: If user chose Cancel option in the dialog that pops up.
         '''
         from fileIO import save_dialog
         if not self.main_window.saved and not save_dialog(self.main_window, 0):

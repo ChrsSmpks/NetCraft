@@ -19,8 +19,12 @@ def get_eigen(graph_edges, node_list):
         index2 = node_list.index(edge.node2)
 
         # Set the corresponding entries in the adjacency matrix to 1
-        A[index1, index2] = 1
-        A[index2, index1] = 1
+        if not edge.weight:
+            A[index1, index2] = 1
+            A[index2, index1] = 1
+        else:
+            A[index1, index2] = edge.weight
+            A[index2, index1] = edge.weight
 
     # Create the Degree matrix of the graph
     D = np.diag(np.sum(A, axis=1))
@@ -59,7 +63,8 @@ def get_eigen(graph_edges, node_list):
 
     # Sort Eigenvalues and Eigenvectors
     sorted_indices = np.argsort(eigenvalues_abs)[::-1]
-    sorted_eigenvalues = eigenvalues_abs[sorted_indices]
+    # sorted_eigenvalues = eigenvalues_abs[sorted_indices]
+    sorted_eigenvalues = eigenvalues[sorted_indices]
     sorted_eigenvectors = eigenvectors[sorted_indices]
 
     # Compute f
@@ -76,8 +81,12 @@ def calTau(graph_edges, edge, epsilon, eigenvalues, feature_vectors, node_list):
     omega = len(feature_vectors)
 
     # Calculate original tau_ij
-    deg1 = len(edge.node1.neighbors.keys())
-    deg2 = len(edge.node2.neighbors.keys())
+    if not edge.weight:
+        deg1 = len(edge.node1.neighbors.keys())
+        deg2 = len(edge.node2.neighbors.keys())
+    else:
+        deg1 = sum(edge.node1.neighbors.values())
+        deg2 = sum(edge.node2.neighbors.values())
 
     a = np.log((1 / deg1 + 1 / deg2 - 2 / (deg1 * deg2)) / (epsilon * (1 - eigenvalues[2])))
     b = np.log(1 / np.abs(eigenvalues[2]))
@@ -155,7 +164,8 @@ def tgt(window, node_list):
         tp = maxCalTau(node, window.graphic_view.edges, epsilon, eigenvalues, feature_vectors, node_list)
 
         for neighbor in node.neighbors.keys():
-            gt[node_list.index(node), node_list.index(neighbor)] = 1 / len(node.neighbors.keys())
+            deg = len(node.neighbors.keys()) if not window.weighted else sum(node.neighbors.values())
+            gt[node_list.index(node), node_list.index(neighbor)] = 1 / deg
 
         # Initialize transition probability matrices
         p = [np.zeros((node_num, node_num), dtype=float) for _ in range(tp)]
@@ -174,12 +184,14 @@ def tgt(window, node_list):
 
             for other_node in node_list:
                 if p[l - 1][node_list.index(other_node), node_list.index(node)] > 0:
-                    for neighbor in node.neighbors.keys():
-                        p[l][node_list.index(neighbor), node_list.index(node)] += p[l][node_list.index(other_node), node_list.index(node)] / len(neighbor.neighbors.keys())
+                    for neighbor in other_node.neighbors.keys():
+                        deg = len(neighbor.neighbors.keys()) if not window.weighted else sum(neighbor.neighbors.values())
+                        p[l][node_list.index(neighbor), node_list.index(node)] += p[l][node_list.index(other_node), node_list.index(node)] / deg
 
             for neighbor in node.neighbors.keys():
-                gt[node_list.index(node), node_list.index(neighbor)] += p[l][node_list.index(node), node_list.index(node)] / len(node.neighbors.keys()) - p[l][
-                    node_list.index(neighbor), node_list.index(node)] / len(node.neighbors.keys())
+                deg = len(node.neighbors.keys()) if not window.weighted else sum(node.neighbors.values())
+                gt[node_list.index(node), node_list.index(neighbor)] += p[l][node_list.index(node), node_list.index(node)] / deg - p[l][
+                    node_list.index(neighbor), node_list.index(node)] / deg
 
     st = {}
     for edge in window.graphic_view.edges:
