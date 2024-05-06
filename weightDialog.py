@@ -66,8 +66,6 @@ class WeightDialog(QDialog):
 
     def get_user_input(self):
         '''
-        Gets user input for the number of notes and density of the graph to be generated
-
         Returns:
              - float: The weight of the edge as specified by user input
              - None: If dialog was not accepted or there was no input

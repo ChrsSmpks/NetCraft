@@ -185,7 +185,7 @@ class GraphicView(QGraphicsView):
         dialog = WeightDialog()
         weight_input = dialog.get_user_input()
         if weight_input:
-            edge.weight = edge.updateWeight(weight_input)
+            edge.updateWeight(weight_input)
             self.main_window.saved = False
 
     def changeColor(self, node, color):
@@ -206,8 +206,8 @@ class GraphicView(QGraphicsView):
         algo_text = self.main_window.side_label.text()
         if not self.main_window.dock_widget.isHidden() and algo_text != 'No edges in the graph!':
             if algo_text == 'Algorithm: Spanning Edge Betweenness':
-                from Algorithms.SpanningCentralities.spanningEdgeBetweenness import spanEdgeBetw
-                spanEdgeBetw(self.main_window, node_list)
+                from mainMenu import connect_spanning_edge_btw
+                connect_spanning_edge_btw(self.main_window, node_list)
             elif algo_text == 'Algorithm: TreeC':
                 from Algorithms.SpanningCentralities.treeC import treeC
                 treeC(self.main_window, node_list)
