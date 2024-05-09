@@ -50,7 +50,8 @@ class WeightDialog(QDialog):
         edge_weight_text = self.edge_weight.text()
 
         if not edge_weight_text:
-            return True
+            QMessageBox.warning(self, 'Invalid Input', 'Please enter valid numeric value.')
+            return False
 
         try:
             edge_weight = float(edge_weight_text)

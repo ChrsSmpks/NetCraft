@@ -10,6 +10,8 @@ class Node(QGraphicsPixmapItem):
     Attributes:
         - key (int): Node's key
         - neighbors (dictionary of NodeObject): Stores all neighbors of the node and the weight between them.
+        - neighbors_out (dictionary of NodeObject): Stores all neighbors of the node from which the node has incoming
+          links from and the weight between them.
         - color (str): The color of the node.
         - edges (list of Edge): List to keep track of connected edges.
         - graphic_key (QGraphicsTextItem): For visual representation of the key.
@@ -29,6 +31,7 @@ class Node(QGraphicsPixmapItem):
 
         self.key = key
         self.neighbors = {}
+        self.neighbors_in = {}
 
         self.color = color
         self.setPixmap(QPixmap(f'Icons\\{color}.png'))

@@ -1,7 +1,7 @@
 from PyQt6 import QtGui
 from PyQt6.QtCore import QTimer, QPointF, Qt, QPoint
 from PyQt6.QtGui import QPainter, QAction
-from PyQt6.QtWidgets import QGraphicsView, QGraphicsScene, QMenu
+from PyQt6.QtWidgets import QGraphicsView, QGraphicsScene, QMenu, QMessageBox
 
 from DataStructures.edge import Edge
 from DataStructures.node import Node, node_list
@@ -260,12 +260,29 @@ class GraphicView(QGraphicsView):
         Parameters:
             - link (Edge): Link to delete.
         '''
+        """print(f'delete {link.node1.key} -> {link.node2.key}')
+        print('before delete:')
+        print(f'{link.node1.key} neighbs out: {link.node1.neighbors}, neighbs in: {link.node1.neighbors_in}')
+        print(f'{link.node2.key} neighbs out: {link.node2.neighbors}, neighbs in: {link.node2.neighbors_in}')"""
+
+        # If there is a bidirectional path between the 2 nodes of the link redraw the other link between them.
+        if link.bidirectional:
+            for edge in self.edges:
+                if edge.node1 == link.node2 and edge.node2 == link.node1:
+                    # print(f'updating bi edge {edge.node1} -> {edge.node2}')
+                    edge.updateBidirectional(0)
 
         self.scene.removeItem(link)
         self.edges.remove(link)
 
         link.node1.neighbors.pop(link.node2)
-        link.node2.neighbors.pop(link.node1)
+        if not self.main_window.directed:
+            link.node2.neighbors.pop(link.node1)
+        else:
+            link.node2.neighbors_in.pop(link.node1)
+        """print('after delete:')
+        print(f'{link.node1.key} neighbs out: {link.node1.neighbors}, neighbs in: {link.node1.neighbors_in}')
+        print(f'{link.node2.key} neighbs out: {link.node2.neighbors}, neighbs in: {link.node2.neighbors_in}')"""
 
         self.main_window.statusBar().showMessage(f'Nodes: {len(node_list)} | Edges: {len(self.edges)} | Custom Graph')
         self.main_window.saved = False
@@ -332,13 +349,16 @@ class GraphicView(QGraphicsView):
         # Remove the Node instance from node_list
         node_list.remove(node)
 
-        # Clear the edges list from the deleted node
+        # Clear the neighbors lists from the deleted node
         node.neighbors.clear()
+        node.neighbors_in.clear()
 
         # Remove the deleted node from the neighbor sets of other nodes
         for other_node in node_list:
             if node in other_node.neighbors.keys():
                 other_node.neighbors.pop(node)
+            if node in other_node.neighbors_in.keys():
+                other_node.neighbors_in.pop(node)
 
         self.main_window.statusBar().showMessage(f'Nodes: {len(node_list)} | Edges: {len(self.edges)} | Custom Graph')
         self.main_window.saved = False
@@ -365,11 +385,22 @@ class GraphicView(QGraphicsView):
         '''
         destination_node = self.scene.itemAt(pos.x(), pos.y(), self.transform())
 
-        # If edge already exists return
-        for edge in self.edges.copy():  # Use copy to avoid modifying the list during iteration
-            if (edge.node1 == self.source_node and edge.node2 == destination_node) or (
-                    edge.node1 == destination_node and edge.node2 == self.source_node):
-                return
+        bidirectional = 0
+        if not self.main_window.directed:
+            # If edge already exists return
+            for edge in self.edges.copy():  # Use copy to avoid modifying the list during iteration
+                if (edge.node1 == self.source_node and edge.node2 == destination_node) or (
+                        edge.node1 == destination_node and edge.node2 == self.source_node):
+                    QMessageBox.warning(self, 'Invalid Input', 'Link already exists.')
+                    return
+        else:
+            for edge in self.edges.copy():  # Use copy to avoid modifying the list during iteration
+                if edge.node1 == self.source_node and edge.node2 == destination_node:
+                    QMessageBox.warning(self, 'Invalid Input', 'Link already exists.')
+                    return
+                if edge.node1 == destination_node and edge.node2 == self.source_node:
+                    bidirectional = 2
+                    break
 
         if isinstance(destination_node, Node) and destination_node != self.source_node:
             weight_input = None
@@ -378,12 +409,23 @@ class GraphicView(QGraphicsView):
                 dialog = WeightDialog()
                 weight_input = dialog.get_user_input()
                 if not weight_input:
-                    self.main_window.weighted = False
+                    return
+
+            # If the link added creates a bidirectional path between the 2 nodes redraw the other link between them.
+            if bidirectional:
+                for edge in self.edges.copy():
+                    if edge.node1 == destination_node and edge.node2 == self.source_node:
+                        edge.updateBidirectional(1)
 
             self.source_node.neighbors[destination_node] = weight_input
-            destination_node.neighbors[self.source_node] = weight_input
+            if not self.main_window.directed:
+                destination_node.neighbors[self.source_node] = weight_input
+            else:
+                destination_node.neighbors_in[self.source_node] = weight_input
+            # print(f'added from {self.source_node.key} to {destination_node.key}')
+            #print(f'{self.source_node.key} -> {destination_node.key}: {self.source_node.neighbors[destination_node]}, {destination_node.key} <- {self.source_node.key}: {destination_node.neighbors_in[self.source_node]}')
 
-            new_edge = Edge(self.source_node, destination_node, weight_input)
+            new_edge = Edge(self.source_node, destination_node, weight_input, self.main_window.directed, bidirectional)
 
             self.edges.append(new_edge)
             self.scene.addItem(new_edge)
@@ -429,6 +471,7 @@ class GraphicView(QGraphicsView):
         # Reset the neighbor sets of all nodes
         for node in node_list:
             node.neighbors.clear()
+            node.neighbors_in.clear()
 
         node_list.clear()
 
