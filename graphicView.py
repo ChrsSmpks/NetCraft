@@ -237,15 +237,35 @@ class GraphicView(QGraphicsView):
         Parameters:
             - node1, node2 (Node): Nodes which the edge connects.
         '''
-        # If edge already exists return
-        for edge in self.edges.copy():  # Use copy to avoid modifying the list during iteration
-            if (edge.node1 == node1 and edge.node2 == node2) or (edge.node1 == node2 and edge.node2 == node1):
-                return
+        bidirectional = 0
+        if not self.main_window.directed:
+            # If edge already exists return
+            for edge in self.edges.copy():  # Use copy to avoid modifying the list during iteration
+                if (edge.node1 == node1 and edge.node2 == node2) or (edge.node1 == node2 and edge.node2 == node1):
+                    QMessageBox.warning(self, 'Invalid Input', 'Link already exists.')
+                    return
+        else:
+            for edge in self.edges.copy():  # Use copy to avoid modifying the list during iteration
+                if edge.node1 == node1 and edge.node2 == node2:
+                    QMessageBox.warning(self, 'Invalid Input', 'Link already exists.')
+                    return
+                if edge.node1 == node2 and edge.node2 == node1:
+                    bidirectional = 2
+                    break
+
+        # If the link added creates a bidirectional path between the 2 nodes redraw the other link between them.
+        if bidirectional:
+            for edge in self.edges.copy():
+                if edge.node1 == node2 and edge.node2 == node1:
+                    edge.updateBidirectional(1)
 
         node1.neighbors[node2] = weight
-        node2.neighbors[node1] = weight
+        if not self.main_window.directed:
+            node2.neighbors[node1] = weight
+        else:
+            node2.neighbors_in[node1] = weight
 
-        new_edge = Edge(node1, node2, weight)
+        new_edge = Edge(node1, node2, weight, self.main_window.directed, bidirectional)
         new_edge.setZValue(1)
         self.edges.append(new_edge)
         self.scene.addItem(new_edge)
@@ -414,6 +434,7 @@ class GraphicView(QGraphicsView):
                 destination_node.neighbors_in[self.source_node] = weight_input
 
             new_edge = Edge(self.source_node, destination_node, weight_input, self.main_window.directed, bidirectional)
+            new_edge.setZValue(1)
 
             self.edges.append(new_edge)
             self.scene.addItem(new_edge)

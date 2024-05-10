@@ -21,12 +21,14 @@ def save_graph(window, save_path, file_format):
         nodes_data = [{'key': node.key, 'x': node.x(), 'y': node.y(), 'color': node.color} for node in node_list]
         edges_data = [[node_list.index(edge.node1), node_list.index(edge.node2), edge.weight] for edge in window.graphic_view.edges]
 
-        graph_data = {'nodes': nodes_data, 'edges': edges_data}
+        graph_data = {'nodes': nodes_data, 'edges': edges_data, 'directed': window.directed}
 
         with open(save_path, 'w') as json_file:
             json.dump(graph_data, json_file, indent=2)
     elif file_format == 'txt':
         with open(save_path, 'w') as txt_file:
+            txt_file.write(f'# Directed: {window.directed}\n')
+
             txt_file.write("Nodes:\n")
             for node in node_list:
                 txt_file.write(f"{node.key} {node.x()} {node.y()} {node.color}\n")
@@ -56,13 +58,17 @@ def load_graph(window, open_path):
         if open_path.endswith('.json'):
             with open(open_path, 'r') as json_file:
                 graph_data = json.load(json_file)
+                window.directed = graph_data.get('directed')
         elif open_path.endswith('.txt'):
             with open(open_path, 'r') as file:
                 graph_data = {'nodes': [], 'edges': []}
                 mode = None
                 for line in file:
                     line = line.strip()
-                    if line == 'Nodes:':
+                    if line.startswith('# Directed:'):
+                        directed_text = line.split(':')[1].strip()
+                        window.directed = True if directed_text == 'True' else False
+                    elif line == 'Nodes:':
                         mode = 'nodes'
                     elif line == 'Edges:':
                         mode = 'edges'
@@ -71,7 +77,6 @@ def load_graph(window, open_path):
                         graph_data['nodes'].append({'key': int(values[0]), 'x': float(values[1]), 'y': float(values[2]), 'color': values[3]})
                     elif mode == 'edges':
                         values = line.split()
-                        # node1_key, node2_key = map(int, line.split())
                         graph_data['edges'].append([int(values[0]), int(values[1]), float(values[2]) if values[2] != 'None' else None])
 
         nodes_data = graph_data.get('nodes', [])

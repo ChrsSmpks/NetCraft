@@ -215,6 +215,9 @@ def generate_net(window):
         for node, pos in layout.items():
             window.graphic_view.addNode(QPointF(pos[0], pos[1]), window.node_color)
 
+        window.weighted = False
+        window.directed = False
+
         # Add edges to the network
         for edge in erdos_renyi_graph.edges:
             node1 = node_list[edge[0]]
@@ -230,8 +233,6 @@ def generate_net(window):
                         break
                 window.graphic_view.addLink(node, node_list[rnd_node_idx])
 
-        window.weighted = False
-        window.directed = False
         window.statusBar().showMessage(f'Nodes: {erdos_renyi_graph.number_of_nodes()} | Edges: {erdos_renyi_graph.number_of_edges()} | Random Erdos - Renyi Graph')
 
         # Update the view

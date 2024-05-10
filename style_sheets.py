@@ -35,6 +35,11 @@ menu_style = """
                 padding: 5px 20px;
                 font-size: 13px;
             }
+            
+            QMenu::separator {
+                background-color:#272727;
+                height: 1px;
+            }
             """
 
 graphic_view_style = """
