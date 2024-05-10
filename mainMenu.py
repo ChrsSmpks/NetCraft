@@ -101,7 +101,7 @@ def create_standard_cenrtalities_menu(main_menu, window):
     clos = QAction('Closeness', centralities_submenu)
 
     # Connect the created actions
-    deg.triggered.connect(lambda: degreeCentrality(window, node_list, window.weighted))
+    deg.triggered.connect(lambda: degreeCentrality(window, node_list, window.weighted, window.directed))
     edge_btw.triggered.connect(lambda: edgeBetweenness(window, node_list))
     btw.triggered.connect(lambda: betweenness(window, node_list))
     clos.triggered.connect(lambda: closeness(window, node_list))
@@ -231,6 +231,7 @@ def generate_net(window):
                 window.graphic_view.addLink(node, node_list[rnd_node_idx])
 
         window.weighted = False
+        window.directed = False
         window.statusBar().showMessage(f'Nodes: {erdos_renyi_graph.number_of_nodes()} | Edges: {erdos_renyi_graph.number_of_edges()} | Random Erdos - Renyi Graph')
 
         # Update the view

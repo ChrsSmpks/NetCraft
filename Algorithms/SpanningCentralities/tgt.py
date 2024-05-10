@@ -149,19 +149,9 @@ def maxCalTau(node, graph_edges, epsilon, eigenvalues, feature_vectors, node_lis
 
 
 def tgt(window, node_list):
-    if not node_list:
+    from ..validateGraph import validateGraph
+    if not validateGraph(window, node_list, False, 'TGT', False):
         return
-    if not window.graphic_view.edges:
-        window.side_label.setText('No edges in the graph!')
-        window.side_table.update_table({'-': '-'}, 'Edge')
-        window.dock_widget.setHidden(False)
-        return
-    for node in node_list:
-        if not node.neighbors:
-            msg = QMessageBox(QMessageBox.Icon.Warning, 'Error', 'Centralities cannot be computed because the graph '
-                                                                 'lacks connectivity.', QMessageBox.StandardButton.Ok)
-            msg.exec()
-            return
 
     eigenvalues, feature_vectors = get_eigen(window.graphic_view.edges, node_list)
 

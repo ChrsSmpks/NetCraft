@@ -13,13 +13,8 @@ def betweenness(window, node_list):
             - Back-propagate dependencies from the last node visited to the source node
             - Update betweenness centrality for each node based on dependencies
     '''
-
-    if not node_list:
-        return
-    if not window.graphic_view.edges:
-        window.side_label.setText('No edges in the graph!')
-        window.side_table.update_table({'-': '-'}, 'Node')
-        window.dock_widget.setHidden(False)
+    from ..validateGraph import validateGraph
+    if not validateGraph(window, node_list, True, None, True):
         return
 
     # Initialize betweenness centrality dictionary
@@ -79,7 +74,8 @@ def betweenness(window, node_list):
 
     # Divide centralities by 2 because it wields double scores for undirected graphs since each pair is considered twice
     for node in betweenness_centralities:
-        betweenness_centralities[node] = round(betweenness_centralities[node]/2, 4)
+        btw_cent = betweenness_centralities[node] if window.directed else betweenness_centralities[node]/2
+        betweenness_centralities[node] = round(btw_cent, 4)
 
     window.side_table.update_table(betweenness_centralities, 'Node')
     window.side_label.setText('Algorithm: Betweenness')

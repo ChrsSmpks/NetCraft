@@ -219,7 +219,7 @@ class GraphicView(QGraphicsView):
                 tgt(self.main_window, node_list)
             elif algo_text == 'Algorithm: Degree Centrality':
                 from Algorithms.StandardCentralities.degreeCentrality import degreeCentrality
-                degreeCentrality(self.main_window, node_list, self.main_window.weighted)
+                degreeCentrality(self.main_window, node_list, self.main_window.weighted, self.main_window.directed)
             elif algo_text == 'Algorithm: Edge Betweenness':
                 from Algorithms.StandardCentralities.edgeBetweenness import edgeBetweenness
                 edgeBetweenness(self.main_window, node_list)
@@ -260,16 +260,10 @@ class GraphicView(QGraphicsView):
         Parameters:
             - link (Edge): Link to delete.
         '''
-        """print(f'delete {link.node1.key} -> {link.node2.key}')
-        print('before delete:')
-        print(f'{link.node1.key} neighbs out: {link.node1.neighbors}, neighbs in: {link.node1.neighbors_in}')
-        print(f'{link.node2.key} neighbs out: {link.node2.neighbors}, neighbs in: {link.node2.neighbors_in}')"""
-
         # If there is a bidirectional path between the 2 nodes of the link redraw the other link between them.
         if link.bidirectional:
             for edge in self.edges:
                 if edge.node1 == link.node2 and edge.node2 == link.node1:
-                    # print(f'updating bi edge {edge.node1} -> {edge.node2}')
                     edge.updateBidirectional(0)
 
         self.scene.removeItem(link)
@@ -280,9 +274,6 @@ class GraphicView(QGraphicsView):
             link.node2.neighbors.pop(link.node1)
         else:
             link.node2.neighbors_in.pop(link.node1)
-        """print('after delete:')
-        print(f'{link.node1.key} neighbs out: {link.node1.neighbors}, neighbs in: {link.node1.neighbors_in}')
-        print(f'{link.node2.key} neighbs out: {link.node2.neighbors}, neighbs in: {link.node2.neighbors_in}')"""
 
         self.main_window.statusBar().showMessage(f'Nodes: {len(node_list)} | Edges: {len(self.edges)} | Custom Graph')
         self.main_window.saved = False
@@ -309,7 +300,6 @@ class GraphicView(QGraphicsView):
                 scene_pos = self.main_window.graphic_view.mapToScene(pos)
             else:
                 scene_pos = self.main_window.graphic_view.mapToScene(pos.toPoint())
-            # scene_pos = self.main_window.graphic_view.mapToScene(pos.toPoint())
 
         if not node_list:
             new_node = Node(0, scene_pos.x(), scene_pos.y(), self.edges, color)
@@ -422,8 +412,6 @@ class GraphicView(QGraphicsView):
                 destination_node.neighbors[self.source_node] = weight_input
             else:
                 destination_node.neighbors_in[self.source_node] = weight_input
-            # print(f'added from {self.source_node.key} to {destination_node.key}')
-            #print(f'{self.source_node.key} -> {destination_node.key}: {self.source_node.neighbors[destination_node]}, {destination_node.key} <- {self.source_node.key}: {destination_node.neighbors_in[self.source_node]}')
 
             new_edge = Edge(self.source_node, destination_node, weight_input, self.main_window.directed, bidirectional)
 

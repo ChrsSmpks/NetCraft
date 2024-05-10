@@ -23,19 +23,9 @@ def fastTreeC(window, node_list):
             Compute R(e) = R(e) + ||z(u) - z(v)||_2^2, R(e) is equivalent to the spanning betweenness centrality of the edge e
     '''
 
-    if not node_list:
+    from ..validateGraph import validateGraph
+    if not validateGraph(window, node_list, False, 'Fast-TreeC', False):
         return
-    if not window.graphic_view.edges:
-        window.side_label.setText('No edges in the graph!')
-        window.side_table.update_table({'-': '-'}, 'Edge')
-        window.dock_widget.setHidden(False)
-        return
-    for node in node_list:
-        if not node.neighbors:
-            msg = QMessageBox(QMessageBox.Icon.Warning, 'Error', 'Centralities cannot be computed because the graph '
-                                                                 'lacks connectivity.', QMessageBox.StandardButton.Ok)
-            msg.exec()
-            return
 
     # Construct the Edge Incidence matrix
     B = edge_incidence_matrix(window.graphic_view.edges, node_list)

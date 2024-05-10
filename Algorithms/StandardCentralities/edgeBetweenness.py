@@ -13,17 +13,15 @@ def edgeBetweenness(window, node_list):
             - Back-propagate dependencies from the last node visited to the source node
             - Update edge betweenness centrality values based on the dependencies
     '''
-
-    if not node_list:
-        return
-    if not window.graphic_view.edges:
-        window.side_label.setText('No edges in the graph!')
-        window.side_table.update_table({'-': '-'}, 'Edge')
-        window.dock_widget.setHidden(False)
+    from ..validateGraph import validateGraph
+    if not validateGraph(window, node_list, True, None, True):
         return
 
     # Initialize betweenness centrality dictionary
-    edge_betweenness = {tuple(sorted((edge.node1.key, edge.node2.key))): 0 for edge in window.graphic_view.edges}
+    if not window.directed:
+        edge_betweenness = {tuple(sorted((edge.node1.key, edge.node2.key))): 0 for edge in window.graphic_view.edges}
+    else:
+        edge_betweenness = {(edge.node1.key, edge.node2.key): 0 for edge in window.graphic_view.edges}
 
     for node in node_list:
         # Initialization

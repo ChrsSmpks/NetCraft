@@ -9,13 +9,8 @@ def closeness(window, node_list):
         - window (QMainWindow): The main window of the app
         - node_list (list of Node): The nodes of the graph
     '''
-
-    if not node_list:
-        return
-    if not window.graphic_view.edges:
-        window.side_label.setText('No edges in the graph!')
-        window.side_table.update_table({'-': '-'}, 'Node')
-        window.dock_widget.setHidden(False)
+    from ..validateGraph import validateGraph
+    if not validateGraph(window, node_list, True, None, True):
         return
 
     # Initialize closeness centrality dictionary
