@@ -3,8 +3,14 @@ import mplcursors
 import numpy as np
 import functools
 
+from PyQt6.QtWidgets import QMessageBox
 
-def plot(cent_dict, algo_text):
+
+def plot(cent_dict, algo_text, plot_type, in_degrees=None):
+    if not cent_dict:
+        QMessageBox.warning(None, 'No Nodes Found', 'The graph has no nodes.')
+        return
+
     cent_counts = {}
     nodes_edges_with_cents = {}
     for edge, cent in cent_dict.items():
@@ -16,25 +22,65 @@ def plot(cent_dict, algo_text):
             nodes_edges_with_cents[cent] = []
         nodes_edges_with_cents[cent].append(edge)
 
+    if in_degrees:
+        for edge, cent in in_degrees.items():
+            # Count occurrences of each centrality value
+            cent_counts[cent] = cent_counts.get(cent, 0) + 1
+
+            # Identify edges with specific centrality
+            if cent not in nodes_edges_with_cents:
+                nodes_edges_with_cents[cent] = []
+            nodes_edges_with_cents[cent].append(edge)
+
     sorted_cent_counts = {k: cent_counts[k] for k in sorted(cent_counts)}
 
     x_cent = list(sorted_cent_counts.keys())
     y_counts = list(sorted_cent_counts.values())
-
-    # Plot the graph
-    fig, ax = plt.subplots()
-    ax.plot(x_cent, y_counts, marker='o', linestyle='-')
-    ax.set_title(f'{algo_text} Centralities Graph')
-    ax.set_xlabel('Centralities')
-    ax.set_ylabel('Occurrences')
-    ax.grid(True)
 
     if algo_text == 'Degree Centrality' or algo_text == 'Betweenness' or algo_text == 'Closeness':
         colm_type = 'Node'
     else:
         colm_type = 'Edge'
 
-    mplcursors.cursor(ax).connect('add', functools.partial(show_edge_info, x_cent=x_cent, sorted_cent_counts=sorted_cent_counts, nodes_edges_with_cents=nodes_edges_with_cents, colm_type=colm_type))
+    if plot_type == 'g':
+        # Plot the graph
+        fig, ax = plt.subplots()
+        ax.plot(x_cent, y_counts, marker='o', linestyle='-')
+        ax.set_title(f'{algo_text} Centralities Graph')
+        ax.set_xlabel('Centralities')
+        ax.set_ylabel('Occurrences')
+        ax.grid(True)
+        mplcursors.cursor(ax).connect('add', functools.partial(show_edge_info, x_cent=x_cent,
+                                                               sorted_cent_counts=sorted_cent_counts,
+                                                               nodes_edges_with_cents=nodes_edges_with_cents,
+                                                               colm_type=colm_type))
+    else:
+        counts, bins, _ = plt.hist(x_cent, histtype='bar', edgecolor='black', alpha=0.75, color='blue', log=True, density=True)
+        plt.title(f'{algo_text} Centralities Histogram')
+        plt.xlabel('Centralities')
+        plt.ylabel('Occurrences')
+        plt.grid(True)
+        plt.xlim(min(x_cent) * 0.5, max(x_cent) * 6)
+
+        # Find the bin with the highest count
+        max_bin_index = np.argmax(counts)
+        highest_point = counts[max_bin_index]
+        plt.ylim(0, highest_point * 1.3)
+        #plt.ylim(min(y_counts) * 0.5, max(y_counts) * 6)
+
+        mplcursors.cursor().connect('add', functools.partial(show_edge_info, x_cent=x_cent,
+                                                             sorted_cent_counts=sorted_cent_counts,
+                                                             nodes_edges_with_cents=nodes_edges_with_cents,
+                                                             colm_type=colm_type))
+        from scipy.stats import lognorm
+        # best fit of data for lognorm distribution
+        s, loc, scale = lognorm.fit(x_cent, floc=0.0)
+
+        # Find the rightmost point
+        rightmost_point = bins[-1]
+        x = np.linspace(0, rightmost_point * 1.1, 10000)
+        y = lognorm.pdf(x, s, loc=loc, scale=scale)
+        plt.plot(x, y, label='lognorm', linewidth=3)
 
     plt.show()
 
