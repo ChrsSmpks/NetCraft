@@ -8,7 +8,7 @@ from PyQt6.QtWidgets import QMessageBox
 
 def plot(cent_dict, algo_text, plot_type, in_degrees=None):
     if not cent_dict:
-        QMessageBox.warning(None, 'No Nodes Found', 'The graph has no nodes.')
+        QMessageBox.warning(None, 'No Centralities Found', 'The centralities have not been computed.')
         return
 
     cent_counts = {}
@@ -60,13 +60,12 @@ def plot(cent_dict, algo_text, plot_type, in_degrees=None):
         plt.xlabel('Centralities')
         plt.ylabel('Occurrences')
         plt.grid(True)
-        plt.xlim(min(x_cent) * 0.5, max(x_cent) * 6)
+        plt.xlim(min(x_cent) * 0.5, max(x_cent) * 4)
 
         # Find the bin with the highest count
         max_bin_index = np.argmax(counts)
         highest_point = counts[max_bin_index]
         plt.ylim(0, highest_point * 1.3)
-        #plt.ylim(min(y_counts) * 0.5, max(y_counts) * 6)
 
         mplcursors.cursor().connect('add', functools.partial(show_edge_info, x_cent=x_cent,
                                                              sorted_cent_counts=sorted_cent_counts,
