@@ -4,6 +4,8 @@ import numpy as np
 import functools
 
 from PyQt6.QtWidgets import QMessageBox
+from bokeh.models import HoverTool
+from bokeh.plotting import figure, show, output_file
 
 
 def plot(cent_dict, algo_text, plot_type, in_degrees=None):
@@ -42,18 +44,32 @@ def plot(cent_dict, algo_text, plot_type, in_degrees=None):
     else:
         colm_type = 'Edge'
 
+    import pandas as pd
+    from bokeh.models import ColumnDataSource
     if plot_type == 'g':
-        # Plot the graph
-        fig, ax = plt.subplots()
-        ax.plot(x_cent, y_counts, marker='o', linestyle='-')
-        ax.set_title(f'{algo_text} Centralities Graph')
-        ax.set_xlabel('Centralities')
-        ax.set_ylabel('Occurrences')
-        ax.grid(True)
-        mplcursors.cursor(ax).connect('add', functools.partial(show_edge_info, x_cent=x_cent,
-                                                               sorted_cent_counts=sorted_cent_counts,
-                                                               nodes_edges_with_cents=nodes_edges_with_cents,
-                                                               colm_type=colm_type))
+        data = pd.DataFrame({
+            'x_cent': x_cent,
+            'y_counts': y_counts
+        })
+        # Compute rolling average
+        data['rolling_avg'] = data['y_counts'].rolling(window=50).mean()
+
+        p = figure(
+            title=f'{algo_text} Centralities Graph',
+            x_axis_label='Centralities',
+            y_axis_label='Frequency',
+            #sizing_mode='stretch_width',
+            x_axis_type='log',
+            y_axis_type='log',
+            tools="pan,box_zoom,reset,save",
+            toolbar_location="above"
+        )
+        source = ColumnDataSource(data)
+        p.line('x_cent', 'rolling_avg', source=source)
+        #p.scatter('x_cent', 'rolling_avg', source=source, size=4, color='green', alpha=0.6, legend_label='Original Data Points')
+        #p.line(x_cent, y_counts)
+        #p.scatter(x_cent, y_counts, fill_color='red', line_color='red', size=8)
+        show(p)
     else:
         counts, bins, _ = plt.hist(x_cent, histtype='bar', edgecolor='black', alpha=0.75, color='blue', log=True, density=True)
         plt.title(f'{algo_text} Centralities Histogram')
@@ -80,7 +96,6 @@ def plot(cent_dict, algo_text, plot_type, in_degrees=None):
         x = np.linspace(0, rightmost_point * 1.1, 10000)
         y = lognorm.pdf(x, s, loc=loc, scale=scale)
         plt.plot(x, y, label='lognorm', linewidth=3)
-
     plt.show()
 
 

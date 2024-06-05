@@ -38,13 +38,14 @@ def create_main_menu(window):
     standard_centralities_menu = create_standard_cenrtalities_menu(main_menu, window)
     spanning_centralities_menu = create_spanning_centralities_menu(main_menu, window)
     options_menu = create_options_menu(main_menu, window)
+    about_menu = create_about_menu(main_menu, window)
 
     # Add submenus
     main_menu.addMenu(file_menu)
     main_menu.addMenu(standard_centralities_menu)
     main_menu.addMenu(spanning_centralities_menu)
     main_menu.addMenu(options_menu)
-    main_menu.addAction(QAction('Hello'))
+    main_menu.addMenu(about_menu)
 
     # Styling
     main_menu.setStyleSheet(menu_style)
@@ -172,6 +173,32 @@ def create_options_menu(main_menu, window):
     return options_menu
 
 
+def create_about_menu(main_menu, window):
+    # Create About submenu
+    about_menu = QMenu('About', main_menu)
+
+    about_act = QAction('About...', main_menu)
+    about_act.triggered.connect(lambda: about_action(window))
+
+    about_menu.addAction(about_act)
+
+    return about_menu
+
+
+def about_action(window):
+    info_text = (
+        '**********************************\n'
+        '\n'
+        'Created by: Sampakidis Charalampos\n'
+        'Email: chrssmks@proton.me\n'
+        'Version: 1.0.0\n'
+        '\n'
+        '**********************************\n'
+    )
+    from PyQt6.QtWidgets import QMessageBox
+    QMessageBox.information(window, "Application Info", info_text)
+
+
 def options_action(window):
     properties_dialog = PropertiesDialog(window)
     properties_dialog.exec()
@@ -198,6 +225,9 @@ def generate_net(window):
 
         # Generate Erdős-Rényi graph
         erdos_renyi_graph = nx.erdos_renyi_graph(nodes, density)
+        if nodes > 1:
+            while not nx.is_connected(erdos_renyi_graph):
+                erdos_renyi_graph = nx.erdos_renyi_graph(nodes, density)
 
         # Get Fruchterman-Reingold layout
         layout = fruchterman_reingold_layout(erdos_renyi_graph, scale=500)
@@ -222,16 +252,7 @@ def generate_net(window):
         for edge in erdos_renyi_graph.edges:
             node1 = node_list[edge[0]]
             node2 = node_list[edge[1]]
-            window.graphic_view.addLink(node1, node2)
-
-        for node in node_list:
-            if not node.neighbors.keys():
-                import random
-                while True:
-                    rnd_node_idx = random.randint(0, len(node_list)-1)
-                    if node != node_list[rnd_node_idx]:
-                        break
-                window.graphic_view.addLink(node, node_list[rnd_node_idx])
+            window.graphic_view.addLink(node1, node2, check_duplicates=False)
 
         window.statusBar().showMessage(f'Nodes: {erdos_renyi_graph.number_of_nodes()} | Edges: {erdos_renyi_graph.number_of_edges()} | Random Erdos - Renyi Graph')
 
@@ -255,7 +276,7 @@ def open_net(window):
     if open_path:
         if not window.graphic_view.clearAll() and node_list:
             return
-        load_graph(window, open_path)  # Adjust based on your project structure
+        load_graph(window, open_path)
 
 
 def save_net(window):

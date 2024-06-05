@@ -17,6 +17,7 @@ class GraphicView(QGraphicsView):
         - main_window (QMainWindow): The main window of the app
         - scene (QGraphicsScene): Place to display the graph
         - edges (list of Edge): List to keep track of connected edges
+        - seen_edges (set of Edge): Set to make search for duplicate edges faster
         - zoom_factor (float): Zoom factor for zooming operations
         - zoom_level (int): Zoom level
         - timer (QTimer): Timer to continuously update the view
@@ -38,6 +39,9 @@ class GraphicView(QGraphicsView):
         self.setRenderHint(QPainter.RenderHint.Antialiasing)
         self.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform)
         self.setRenderHint(QPainter.RenderHint.TextAntialiasing)
+        # self.setOptimizationFlags(QGraphicsView.OptimizationFlag.DontSavePainterState)
+        self.setViewportUpdateMode(QGraphicsView.ViewportUpdateMode.BoundingRectViewportUpdate)
+        self.setTransformationAnchor(QGraphicsView.ViewportAnchor.AnchorUnderMouse)
 
         self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.customContextMenuRequested.connect(self.contextMenu)
@@ -47,6 +51,7 @@ class GraphicView(QGraphicsView):
         self.setSceneRect(0, 0, 1200, 1000)
 
         self.edges = []
+        self.seen_edges = set()
 
         # Set scroll hand drag mode for panning
         self.setDragMode(QGraphicsView.DragMode.ScrollHandDrag)
@@ -230,7 +235,7 @@ class GraphicView(QGraphicsView):
                 from Algorithms.StandardCentralities.closeness import closeness
                 closeness(self.main_window, node_list)
 
-    def addLink(self, node1, node2, weight=None):
+    def addLink(self, node1, node2, weight=None, check_duplicates=True):
         '''
         Add a link between 2 nodes and update the status bar and centrality table accordingly.
 
@@ -239,19 +244,25 @@ class GraphicView(QGraphicsView):
         '''
         bidirectional = 0
         if not self.main_window.directed:
-            # If edge already exists return
-            for edge in self.edges.copy():  # Use copy to avoid modifying the list during iteration
-                if (edge.node1 == node1 and edge.node2 == node2) or (edge.node1 == node2 and edge.node2 == node1):
-                    QMessageBox.warning(self, 'Invalid Input', 'Link already exists.')
+            print()
+            """if check_duplicates:
+                # If edge already exists return
+                if tuple(sorted((node1.key, node2.key))) in self.seen_edges:
+                    QMessageBox.warning(self, 'Invalid Input', f'Link {node1.key, node2.key} already exists.')
                     return
+                else:
+                    self.seen_edges.add(tuple(sorted((node1.key, node2.key))))"""
         else:
-            for edge in self.edges.copy():  # Use copy to avoid modifying the list during iteration
-                if edge.node1 == node1 and edge.node2 == node2:
-                    QMessageBox.warning(self, 'Invalid Input', 'Link already exists.')
-                    return
+            """if (node1.key, node2.key) in self.seen_edges:
+                QMessageBox.warning(self, 'Invalid Input', f'Link {node1.key, node2.key} already exists.')
+                return
+            else:
+                self.seen_edges.add((node1.key, node2.key))
+            for edge in self.edges:
                 if edge.node1 == node2 and edge.node2 == node1:
                     bidirectional = 2
-                    break
+                    break"""
+            print()
 
         # If the link added creates a bidirectional path between the 2 nodes redraw the other link between them.
         if bidirectional:
@@ -285,6 +296,11 @@ class GraphicView(QGraphicsView):
             for edge in self.edges:
                 if edge.node1 == link.node2 and edge.node2 == link.node1:
                     edge.updateBidirectional(0)
+
+        if (link.node1.key, link.node2.key) in self.seen_edges:
+            self.seen_edges.remove((link.node1.key, link.node2.key))
+        elif not self.main_window.directed and (link.node2.key, link.node1.key) in self.seen_edges:
+            self.seen_edges.remove((link.node2.key, link.node1.key))
 
         self.scene.removeItem(link)
         self.edges.remove(link)
@@ -351,6 +367,10 @@ class GraphicView(QGraphicsView):
                 if edge.node1 == node or edge.node2 == node:
                     self.scene.removeItem(edge)
                     self.edges.remove(edge)
+                    if (edge.node1.key, edge.node2.key) in self.seen_edges:
+                        self.seen_edges.remove((edge.node1.key, edge.node2.key))
+                    elif not self.main_window.directed and (edge.node2.key, edge.node1.key) in self.seen_edges:
+                        self.seen_edges.remove((edge.node2.key, edge.node1.key))
 
         # Remove the node from the scene and the list of nodes
         self.scene.removeItem(node)
@@ -395,24 +415,25 @@ class GraphicView(QGraphicsView):
         '''
         destination_node = self.scene.itemAt(pos.x(), pos.y(), self.transform())
 
-        bidirectional = 0
-        if not self.main_window.directed:
-            # If edge already exists return
-            for edge in self.edges.copy():  # Use copy to avoid modifying the list during iteration
-                if (edge.node1 == self.source_node and edge.node2 == destination_node) or (
-                        edge.node1 == destination_node and edge.node2 == self.source_node):
-                    QMessageBox.warning(self, 'Invalid Input', 'Link already exists.')
-                    return
-        else:
-            for edge in self.edges.copy():  # Use copy to avoid modifying the list during iteration
-                if edge.node1 == self.source_node and edge.node2 == destination_node:
-                    QMessageBox.warning(self, 'Invalid Input', 'Link already exists.')
-                    return
-                if edge.node1 == destination_node and edge.node2 == self.source_node:
-                    bidirectional = 2
-                    break
-
         if isinstance(destination_node, Node) and destination_node != self.source_node:
+            bidirectional = 0
+            if not self.main_window.directed:
+                if tuple(sorted((self.source_node.key, destination_node.key))) in self.seen_edges:
+                    QMessageBox.warning(self, 'Invalid Input', f'Link {self.source_node.key, destination_node.key} already exists.')
+                    return
+                else:
+                    self.seen_edges.add(tuple(sorted((self.source_node.key, destination_node.key))))
+            else:
+                if (self.source_node.key, destination_node.key) in self.seen_edges:
+                    QMessageBox.warning(self, 'Invalid Input', f'Link {self.source_node.key, destination_node.key} already exists.')
+                    return
+                else:
+                    self.seen_edges.add((self.source_node.key, destination_node.key))
+                for edge in self.edges:
+                    if edge.node1 == destination_node and edge.node2 == self.source_node:
+                        bidirectional = 2
+                        break
+
             weight_input = None
 
             if self.main_window.weighted:
@@ -476,6 +497,7 @@ class GraphicView(QGraphicsView):
 
         self.scene.clear()
         self.edges = []
+        self.seen_edges.clear()
 
         # Reset the neighbor sets of all nodes
         for node in node_list:

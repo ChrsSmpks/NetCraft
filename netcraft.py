@@ -2,7 +2,8 @@ import sys
 
 from PyQt6.QtCore import QEvent, Qt
 from PyQt6.QtGui import QGuiApplication, QIcon
-from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QLabel, QDockWidget
+from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QLabel, QDockWidget, QHBoxLayout, \
+    QPushButton
 
 from centralityTable import CentralityTable
 from graphicView import GraphicView
@@ -84,7 +85,7 @@ class Window(QMainWindow):
 
         # Create side dock for Centrality info
 
-        # Create a side widget
+        """# Create a side widget
         side_widget = QWidget(self)
 
         side_widget.setStyleSheet(side_style)
@@ -99,7 +100,10 @@ class Window(QMainWindow):
         self.side_table.setStyleSheet(table_style)
 
         side_layout.addWidget(self.side_label)
-        side_layout.addWidget(self.side_table)
+        side_layout.addWidget(self.side_table)"""
+
+        from createDock import create_dock
+        side_widget, self.side_label, self.side_table = create_dock(self)
 
         # Create a dock widget
         self.dock_widget = QDockWidget('Centralities', self)

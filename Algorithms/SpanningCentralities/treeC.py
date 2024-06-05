@@ -1,5 +1,5 @@
 import numpy as np
-from PyQt6.QtWidgets import QMessageBox
+from scipy.sparse import spdiags
 
 from .spanningEdgeBetweenness import get_laplacian_matrix
 
@@ -55,6 +55,9 @@ def treeC(window, node_list):
     if not validateGraph(window, node_list, False, 'TreeC', False):
         return
 
+    import timeit
+    start = timeit.default_timer()
+
     # Initialize matrices
     Z = np.empty((0, len(node_list)))
 
@@ -81,11 +84,26 @@ def treeC(window, node_list):
 
     # Compute Y = QB
     Y = np.dot(Q, B)
+    from scipy.sparse.linalg import gmres
 
-    # Approximate zi by solving Lzi = Y[:, i]
+    # Jacobi (Diagonal) Preconditioner
+    preconditioner = spdiags(1.0 / laplacian_matrix.diagonal(), [0], laplacian_matrix.shape[0],
+                             laplacian_matrix.shape[1])
+
+    # Compute the preconditioner
+    preconditioner_mat = preconditioner.toarray()
+
+    # Modify the linear system with preconditioning
+    preconditioned_A = preconditioner_mat.dot(laplacian_matrix)
+
+    # Approximate zi by solving Lzi = Y[i, :]
     for i in range(k):
         try:
-            zi = np.linalg.solve(laplacian_matrix, Y[i, :])
+            preconditioned_b = preconditioner_mat.dot(Y[i, :])
+
+            zi, _ = gmres(preconditioned_A, preconditioned_b)
+            #zi = np.linalg.solve(laplacian_matrix, Y[i, :])
+            #print(f'did z{i}')
         except np.linalg.LinAlgError as e:
             if 'Singular matrix' in str(e):
                 # If matrix is singular use a least squares solution
@@ -101,6 +119,9 @@ def treeC(window, node_list):
         u, v = node_list.index(edge.node1), node_list.index(edge.node2)
 
         R[tuple(sorted((key1, key2)))] = round(np.linalg.norm(Z[:, u] - Z[:, v]) ** 2, 4)
+
+    stop = timeit.default_timer()
+    print('Time: ', stop - start)
 
     window.side_table.update_table(R, 'Edge')
     window.side_label.setText('Algorithm: TreeC')

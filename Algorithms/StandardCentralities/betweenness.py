@@ -17,6 +17,9 @@ def betweenness(window, node_list):
     if not validateGraph(window, node_list, True, None, True):
         return
 
+    import timeit
+    start = timeit.default_timer()
+
     # Initialize betweenness centrality dictionary
     betweenness_centralities = {node.key: 0 for node in node_list}
 
@@ -71,6 +74,10 @@ def betweenness(window, node_list):
                 dependencies[v.key] += shortest_paths[v.key] / shortest_paths[w.key] * (1 + dependencies[w.key])
             if w != node:
                 betweenness_centralities[w.key] += dependencies[w.key]
+
+        #print('betweenness checked node', node.key)
+    stop = timeit.default_timer()
+    print('Time: ', stop - start)
 
     # Divide centralities by 2 because it wields double scores for undirected graphs since each pair is considered twice
     for node in betweenness_centralities:

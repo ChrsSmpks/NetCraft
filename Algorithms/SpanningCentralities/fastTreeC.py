@@ -1,5 +1,4 @@
 import numpy as np
-from PyQt6.QtWidgets import QMessageBox
 
 from .spanningEdgeBetweenness import get_laplacian_matrix
 from .treeC import edge_incidence_matrix
@@ -26,6 +25,9 @@ def fastTreeC(window, node_list):
     from ..validateGraph import validateGraph
     if not validateGraph(window, node_list, False, 'Fast-TreeC', False):
         return
+
+    import timeit
+    start = timeit.default_timer()
 
     # Construct the Edge Incidence matrix
     B = edge_incidence_matrix(window.graphic_view.edges, node_list)
@@ -80,6 +82,9 @@ def fastTreeC(window, node_list):
 
             # Update resistance for the edge
             R[tuple(sorted((key1, key2)))] += np.linalg.norm(z[u] - z[v]) ** 2
+
+    stop = timeit.default_timer()
+    print('Time: ', stop - start)
 
     for edge in R:
         R[edge] = round(R[edge], 4)

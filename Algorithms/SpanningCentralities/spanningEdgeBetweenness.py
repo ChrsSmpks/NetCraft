@@ -1,5 +1,4 @@
 import numpy as np
-from PyQt6.QtWidgets import QMessageBox
 
 
 def get_laplacian_matrix(graph_edges, node_list):
@@ -106,12 +105,13 @@ def edge_msts_and_centrality(nodes, edges, laplacian_matrix, msts, spanning_betw
         laplacian_ij = np.delete(laplacian_matrix, [i, j], axis=0)
         laplacian_ij = np.delete(laplacian_ij, [i, j], axis=1)
 
+        print(f'calc edge {edge.node1.key, edge.node2.key}')
         # Number of spanning trees containing the edge
-        trees_for_edges = np.linalg.det(laplacian_ij)
+        edge_msts = np.linalg.det(laplacian_ij)
+        print('got edge msts', edge_msts)
 
-        # Store the result for the edge - Equation 1
-        spanning_betweenness_for_edges[tuple(sorted((edge.node1.key, edge.node2.key)))] = round(trees_for_edges / msts,
-                                                                                                4)
+        # Store the result for the edge
+        spanning_betweenness_for_edges[tuple(sorted((edge.node1.key, edge.node2.key)))] = round(edge_msts / msts, 4)
 
 
 def spanEdgeBetw(window, node_list):
@@ -135,12 +135,19 @@ def spanEdgeBetw(window, node_list):
     if not validateGraph(window, node_list, False, 'Spanning Edge Betweenness', False):
         return
 
+    import timeit
+    start = timeit.default_timer()
+
     msts, laplacian_matrix = msts_num(window.graphic_view.edges, node_list)
+    print('got msts:', msts)
 
     # Initialize a dictionary to store results for each edge
     spanning_betweenness_for_edges = {}
 
     edge_msts_and_centrality(node_list, window.graphic_view.edges, laplacian_matrix, msts, spanning_betweenness_for_edges)
+
+    stop = timeit.default_timer()
+    print('Time: ', stop - start)
 
     window.side_table.update_table(spanning_betweenness_for_edges, 'Edge')
     window.side_label.setText('Algorithm: Spanning Edge Betweenness')
@@ -216,7 +223,6 @@ def spanEdgeBetwWeighted(window, node_list):
     vertices = node_list.copy()
     uf = UnionFind(vertices)
     i = 0
-    tg = 1
     spanning_betweenness_for_edges = {tuple(sorted((edge.node1.key, edge.node2.key))): 0.0 for edge in edges}
 
     while i < len(edges):
@@ -228,30 +234,29 @@ def spanEdgeBetwWeighted(window, node_list):
             j += 1
 
         # Find connected components in the graph formed by mst_edges
-        connected_components = find_connected_components(same_weight_edges)
+        connected_components_edges = find_connected_components(same_weight_edges)
 
-        for component in connected_components:
+        for component_edges in connected_components_edges:
             comp_nodes = set()
-            brk = False
-            for edge in component:
+            filtered_component_edges = []
+            for edge in component_edges:
                 if uf.find(edge.node1) == uf.find(edge.node2):
-                    brk = True
                     spanning_betweenness_for_edges[tuple(sorted((edge.node1.key, edge.node2.key)))] = float(0)
-                    break
-                comp_nodes.add(edge.node1)
-                comp_nodes.add(edge.node2)
-            if brk:
+                else:
+                    filtered_component_edges.append(edge)
+                    comp_nodes.add(edge.node1)
+                    comp_nodes.add(edge.node2)
+
+            component_edges = filtered_component_edges
+            if not component_edges:
                 continue
             comp_nodes = list(comp_nodes)
 
-            tc, laplacian_matrix = msts_num(component, comp_nodes)
-            tg *= tc
-            edge_msts_and_centrality(comp_nodes, component, laplacian_matrix, tc, spanning_betweenness_for_edges)
+            tc, laplacian_matrix = msts_num(component_edges, comp_nodes)
+            edge_msts_and_centrality(comp_nodes, component_edges, laplacian_matrix, tc, spanning_betweenness_for_edges)
 
-        mst_edges = []
         for edge in same_weight_edges:
             if uf.find(edge.node1) != uf.find(edge.node2):
-                mst_edges.append(edge)
                 uf.union(edge.node1, edge.node2)
 
         # Skip to the next set of edges with different weights

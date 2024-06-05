@@ -17,6 +17,9 @@ def edgeBetweenness(window, node_list):
     if not validateGraph(window, node_list, True, None, True):
         return
 
+    import timeit
+    start = timeit.default_timer()
+
     # Initialize betweenness centrality dictionary
     if not window.directed:
         edge_betweenness = {tuple(sorted((edge.node1.key, edge.node2.key))): 0 for edge in window.graphic_view.edges}
@@ -75,6 +78,9 @@ def edgeBetweenness(window, node_list):
                 if (v.key, w.key) in edge_betweenness.keys():
                     edge_betweenness[(v.key, w.key)] += c
                 dependencies[v.key] += c
+
+    stop = timeit.default_timer()
+    print('Time: ', stop - start)
 
     # Round centralities to 4 decimals
     for edge in edge_betweenness:
