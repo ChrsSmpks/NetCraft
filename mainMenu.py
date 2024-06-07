@@ -186,6 +186,21 @@ def create_about_menu(main_menu, window):
 
 
 def about_action(window):
+    """import csv
+    betweenness(window, node_list)
+    data, _ = window.side_table.get_data()
+    save_path = 'C:\\Users\\suvro\\Desktop\\Times\\UU\\Twitter lists\\CSV Data\\uu_twitterlists_betw.csv'
+    with open(save_path, mode='w', newline='') as file:
+        writer = csv.writer(file)
+        for edge_node, centrality in data.items():
+            writer.writerow([edge_node, centrality])
+    edgeBetweenness(window, node_list)
+    data, _ = window.side_table.get_data()
+    save_path = 'C:\\Users\\suvro\\Desktop\\Times\\UU\\Twitter lists\\CSV Data\\uu_twitterlists_ebetw.csv'
+    with open(save_path, mode='w', newline='') as file:
+        writer = csv.writer(file)
+        for edge_node, centrality in data.items():
+            writer.writerow([edge_node, centrality])"""
     info_text = (
         '**********************************\n'
         '\n'

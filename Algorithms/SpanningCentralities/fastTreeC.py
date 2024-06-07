@@ -1,7 +1,56 @@
 import numpy as np
+import os
+import psutil
+from scipy.sparse import spdiags
+from scipy.sparse.linalg import gmres
+import concurrent.futures
+from functools import partial
 
 from .spanningEdgeBetweenness import get_laplacian_matrix
 from .treeC import edge_incidence_matrix
+
+
+def compute_resistance_for_iteration(i, B, L, node_list, edges, k, preconditioned_A, preconditioner_mat):
+    # Construct a random vector q
+    q = np.random.choice([-1 / np.sqrt(k), 0, 1 / np.sqrt(k)], size=(1, len(edges)))
+
+    # Compute y = qB
+    y = np.dot(q, B)
+
+    # Approximate z by solving Lz = y
+    try:
+        preconditioned_b = preconditioner_mat.dot(y.T)
+        z, _ = gmres(preconditioned_A, preconditioned_b)
+    except np.linalg.LinAlgError as e:
+        if 'Singular matrix' in str(e):
+            # If matrix is singular use a least squares solution
+            z = np.linalg.lstsq(L, y.T, rcond=None)[0]
+        else:
+            print('Error:', e)
+            return {}
+
+    # Initialize resistance distances for this iteration
+    R_iter = {}
+
+    # Update resistance distances for each edge
+    for edge in edges:
+        key1, key2 = edge[0], edge[1]
+        u, v = node_list.index(edge[0]), node_list.index(edge[1])
+
+        # Update resistance for the edge
+        if (key1, key2) not in R_iter:
+            R_iter[tuple(sorted((key1, key2)))] = 0
+
+        R_iter[tuple(sorted((key1, key2)))] += np.linalg.norm(z[u] - z[v]) ** 2
+
+    return R_iter
+
+
+def merge_resistances(R, R_iter):
+    for edge, resistance in R_iter.items():
+        if edge not in R:
+            R[edge] = 0
+        R[edge] += resistance
 
 
 def fastTreeC(window, node_list):
@@ -26,6 +75,15 @@ def fastTreeC(window, node_list):
     if not validateGraph(window, node_list, False, 'Fast-TreeC', False):
         return
 
+    edges = []
+    for edge in window.graphic_view.edges:
+        edges.append([edge.node1.key, edge.node2.key])
+
+    nodes = []
+    for node in node_list:
+        nodes.append(node.key)
+    print('converted edges, nodes')
+
     import timeit
     start = timeit.default_timer()
 
@@ -45,6 +103,16 @@ def fastTreeC(window, node_list):
         B_T = np.transpose(B)
         L = np.dot(B_T, np.dot(W, B))
 
+    # Jacobi (Diagonal) Preconditioner
+    preconditioner = spdiags(1.0 / L.diagonal(), [0], L.shape[0], L.shape[1])
+
+    # Compute the preconditioner
+    preconditioner_mat = preconditioner.toarray()
+
+    # Modify the linear system with preconditioning
+    preconditioned_A = preconditioner_mat.dot(L)
+    print('did precondition A')
+
     # Number of nodes and edges in the graph
     n = len(node_list)
     m = len(window.graphic_view.edges)
@@ -54,34 +122,20 @@ def fastTreeC(window, node_list):
 
     # Iterate over k dimensions
     k = int(np.ceil(np.log2(n)))  # k = O(log n)
-    for i in range(k):
-        # Construct a random vector q
-        q = np.random.choice([-1 / np.sqrt(k), 0, 1 / np.sqrt(k)], size=(1, m))
 
-        # Compute y = qB
-        y = np.dot(q, B)
+    try:
+        with concurrent.futures.ProcessPoolExecutor() as executor:
+            func = partial(compute_resistance_for_iteration, B=B, L=L, node_list=nodes,
+                           edges=edges,
+                           k=k, preconditioned_A=preconditioned_A, preconditioner_mat=preconditioner_mat)
+            results = list(executor.map(func, range(k)))
+            #print(f"Memory usage: {process.memory_info().rss / (1024 * 1024):.2f} MB")
+    except Exception as e:
+        print(f"An error occurred: {str(e)}")
 
-        # Approximate z by solving Lz = y
-        try:
-            z = np.linalg.solve(L, y.T)
-        except np.linalg.LinAlgError as e:
-            if 'Singular matrix' in str(e):
-                # If matrix is singular use a least squares solution
-                z = np.linalg.lstsq(L, y.T, rcond=None)[0]
-            else:
-                print('Error:', e)
-
-        # Update resistance distances for each edge
-        for edge in window.graphic_view.edges:
-            key1, key2 = edge.node1.key, edge.node2.key
-            u, v = node_list.index(edge.node1), node_list.index(edge.node2)
-
-            # If the edge is not in the dictionary add it
-            if (key1, key2) not in R:
-                R[tuple(sorted((key1, key2)))] = 0
-
-            # Update resistance for the edge
-            R[tuple(sorted((key1, key2)))] += np.linalg.norm(z[u] - z[v]) ** 2
+    # Merge results from all iterations
+    for R_iter in results:
+        merge_resistances(R, R_iter)
 
     stop = timeit.default_timer()
     print('Time: ', stop - start)

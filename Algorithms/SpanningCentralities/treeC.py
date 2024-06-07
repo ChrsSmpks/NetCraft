@@ -102,8 +102,6 @@ def treeC(window, node_list):
             preconditioned_b = preconditioner_mat.dot(Y[i, :])
 
             zi, _ = gmres(preconditioned_A, preconditioned_b)
-            #zi = np.linalg.solve(laplacian_matrix, Y[i, :])
-            #print(f'did z{i}')
         except np.linalg.LinAlgError as e:
             if 'Singular matrix' in str(e):
                 # If matrix is singular use a least squares solution

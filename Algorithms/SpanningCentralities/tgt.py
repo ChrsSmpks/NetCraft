@@ -34,7 +34,11 @@ def get_eigen(graph_edges, node_list):
     D_sqrt = np.sqrt(D)
 
     # Compute the inverse of the square root of the degree matrix (D^(-1/2))
-    D_sqrt_inv = np.linalg.inv(D_sqrt)
+    try:
+        D_sqrt_inv = np.linalg.inv(D_sqrt)
+    except np.linalg.LinAlgError:
+        # If the matrix is singular, use the pseudoinverse
+        D_sqrt_inv = np.linalg.pinv(D_sqrt)
 
     # Compute the Transition Matrix (P)
     P = np.divide(A, np.sum(np.abs(A), axis=1, keepdims=True))
