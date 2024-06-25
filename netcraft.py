@@ -2,15 +2,13 @@ import sys
 
 from PyQt6.QtCore import QEvent, Qt
 from PyQt6.QtGui import QGuiApplication, QIcon
-from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QLabel, QDockWidget, QHBoxLayout, \
-    QPushButton
+from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QDockWidget
 
-from centralityTable import CentralityTable
 from graphicView import GraphicView
 from mainMenu import create_main_menu
 from fileIO import save_dialog
 from DataStructures.node import node_list
-from style_sheets import main_page_style, graphic_view_style, side_style, table_style
+from style_sheets import main_page_style, graphic_view_style
 from toolbar import create_toolbar
 
 
@@ -45,7 +43,7 @@ class Window(QMainWindow):
         self.node_color = 'green'
 
         # Set window properties
-        self.setWindowTitle('NetCraft Insight')
+        self.setWindowTitle('NetCraft')
         self.setWindowIcon(QIcon('Icons\\logo.png'))
 
         # Get the primary screen from QGuiApplication

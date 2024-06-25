@@ -1,4 +1,5 @@
 import numpy as np
+from scipy.linalg import det
 
 
 def get_laplacian_matrix(graph_edges, node_list):
@@ -15,7 +16,8 @@ def get_laplacian_matrix(graph_edges, node_list):
 
     # Initialize the Adjacency Matrix
     node_num = len(node_list)
-    adj_matrix = np.zeros((node_num, node_num), dtype=int)
+    adj_matrix = np.zeros((node_num, node_num), dtype=float)
+    print('laplacian for weight', graph_edges[0].weight)
 
     # Populate the Adjacency Matrix
     for edge in graph_edges:
@@ -23,12 +25,20 @@ def get_laplacian_matrix(graph_edges, node_list):
         index1 = node_list.index(edge.node1)
         index2 = node_list.index(edge.node2)
 
-        # Set the corresponding entries in the adjacency matrix to 1
-        adj_matrix[index1, index2] = 1
-        adj_matrix[index2, index1] = 1
+        if not edge.weight:
+            # Set the corresponding entries in the adjacency matrix to 1
+            adj_matrix[index1, index2] = 1.0
+            adj_matrix[index2, index1] = 1.0
+        else:
+            adj_matrix[index1, index2] = edge.weight
+            adj_matrix[index2, index1] = edge.weight
+            #print(f'edge weight {edge.weight}, adj_matrix[index1, index2]={adj_matrix[index1, index2]}, adj_matrix[index2, index1]={adj_matrix[index2, index1]}')
 
-    # Create the Degree matrix of the graph
-    degree_matrix = np.diag(np.sum(adj_matrix, axis=1))
+    try:
+        # Create the Degree matrix of the graph
+        degree_matrix = np.diag(np.sum(adj_matrix, axis=1))
+    except Exception as e:
+        print(f"An error occurred: {str(e)}")
 
     # Create the Laplacian matrix by subtracting Adjacency matrix from Degree matrix
     laplacian_matrix = degree_matrix - adj_matrix
@@ -76,12 +86,14 @@ def msts_num(edges, nodes):
     '''
     laplacian_matrix = get_laplacian_matrix(edges, nodes)
 
-    msts = np.linalg.det(laplacian_matrix[1:, 1:])
+    #msts = np.linalg.det(laplacian_matrix[1:, 1:])
+    msts = det(laplacian_matrix[1:, 1:])
+    print('msts =', msts)
 
     if np.isinf(msts):
         laplacian_matrix = normalize_matrix(laplacian_matrix)
 
-        msts = np.linalg.det(laplacian_matrix[1:, 1:])
+        msts = det(laplacian_matrix[1:, 1:])
 
     return msts, laplacian_matrix
 
@@ -102,13 +114,17 @@ def edge_msts_and_centrality(nodes, edges, laplacian_matrix, msts, spanning_betw
     for edge in edges:
         i, j = nodes.index(edge.node1), nodes.index(edge.node2)
 
-        laplacian_ij = np.delete(laplacian_matrix, [i, j], axis=0)
-        laplacian_ij = np.delete(laplacian_ij, [i, j], axis=1)
+        """laplacian_ij = np.delete(laplacian_matrix, [i, j], axis=0)
+        laplacian_ij = np.delete(laplacian_ij, [i, j], axis=1)"""
+        laplacian_ij = laplacian_matrix[np.ix_(
+            [k for k in range(len(laplacian_matrix)) if k != i and k != j],
+            [k for k in range(len(laplacian_matrix)) if k != i and k != j]
+        )]
 
-        print(f'calc edge {edge.node1.key, edge.node2.key}')
+        #print(f'calc edge {edge.node1.key, edge.node2.key}')
         # Number of spanning trees containing the edge
-        edge_msts = np.linalg.det(laplacian_ij)
-        print('got edge msts', edge_msts)
+        #edge_msts = np.linalg.det(laplacian_ij)
+        edge_msts = det(laplacian_ij)
 
         # Store the result for the edge
         spanning_betweenness_for_edges[tuple(sorted((edge.node1.key, edge.node2.key)))] = round(edge_msts / msts, 4)
@@ -219,6 +235,9 @@ def spanEdgeBetwWeighted(window, node_list):
     if not validateGraph(window, node_list, False, 'Spanning Edge Betweenness', False):
         return
 
+    import timeit
+    start = timeit.default_timer()
+
     edges = sorted(window.graphic_view.edges, key=lambda _edge: _edge.weight)  # Sort edges by weight
     vertices = node_list.copy()
     uf = UnionFind(vertices)
@@ -261,6 +280,9 @@ def spanEdgeBetwWeighted(window, node_list):
 
         # Skip to the next set of edges with different weights
         i = j
+
+    stop = timeit.default_timer()
+    print('Time: ', stop - start)
 
     window.side_table.update_table(spanning_betweenness_for_edges, 'Edge')
     window.side_label.setText('Algorithm: Spanning Edge Betweenness')

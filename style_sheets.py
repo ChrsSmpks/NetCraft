@@ -102,7 +102,7 @@ context_menu_style = '''
                 }
                 
                 QMenu::item:selected {
-                    background-color: #A9A9A9;
+                    background-color: #606060;
                     color: white;
                     border-radius: 4px;
                 }

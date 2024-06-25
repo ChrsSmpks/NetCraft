@@ -52,26 +52,64 @@ def plot(cent_dict, algo_text, plot_type, in_degrees=None):
             'y_counts': y_counts
         })
         # Compute rolling average
-        data['rolling_avg'] = data['y_counts'].rolling(window=50).mean()
+        #data['rolling_avg'] = data['y_counts'].rolling(window=50).mean()
 
         p = figure(
             title=f'{algo_text} Centralities Graph',
             x_axis_label='Centralities',
             y_axis_label='Frequency',
             #sizing_mode='stretch_width',
-            x_axis_type='log',
-            y_axis_type='log',
+            #x_axis_type='log',
+            #y_axis_type='log',
             tools="pan,box_zoom,reset,save",
             toolbar_location="above"
         )
         source = ColumnDataSource(data)
-        p.line('x_cent', 'rolling_avg', source=source)
+        p.line('x_cent', 'y_counts', source=source)
         #p.scatter('x_cent', 'rolling_avg', source=source, size=4, color='green', alpha=0.6, legend_label='Original Data Points')
         #p.line(x_cent, y_counts)
         #p.scatter(x_cent, y_counts, fill_color='red', line_color='red', size=8)
         show(p)
     else:
-        counts, bins, _ = plt.hist(x_cent, histtype='bar', edgecolor='black', alpha=0.75, color='blue', log=True, density=True)
+        centrality_values = list(cent_dict.values())
+        hist, edges = np.histogram(centrality_values, density=True, bins=50)
+
+        data = {
+            'top': hist,
+            'left': edges[:-1],
+            'right': edges[1:]
+        }
+
+        source = ColumnDataSource(data)
+
+        from scipy.stats import norm
+        mean, std = norm.fit(centrality_values)
+
+        x = np.linspace(min(centrality_values), max(centrality_values), 1000)
+        pdf = norm.pdf(x, mean, std)
+
+        source_pdf = ColumnDataSource(data={
+            'x': x,
+            'pdf': pdf
+        })
+
+        p = figure(
+            title=f'{algo_text} Centralities Histogram',
+            x_axis_label='Centralities',
+            y_axis_label='Frequency',
+            background_fill_color='#fafafa'
+        )
+
+        p.quad(top='top', bottom=0, left='left', right='right', fill_color='lightgreen', line_color='black', alpha=0.7,
+               source=source)
+
+        p.line('x', 'pdf', line_width=2, color='orange', alpha=0.7, source=source_pdf)
+
+        p.xgrid.grid_line_color = None
+
+        show(p)
+
+        """counts, bins, _ = plt.hist(x_cent, histtype='bar', edgecolor='black', alpha=0.75, color='blue', log=True, density=True)
         plt.title(f'{algo_text} Centralities Histogram')
         plt.xlabel('Centralities')
         plt.ylabel('Occurrences')
@@ -95,7 +133,7 @@ def plot(cent_dict, algo_text, plot_type, in_degrees=None):
         rightmost_point = bins[-1]
         x = np.linspace(0, rightmost_point * 1.1, 10000)
         y = lognorm.pdf(x, s, loc=loc, scale=scale)
-        plt.plot(x, y, label='lognorm', linewidth=3)
+        plt.plot(x, y, label='lognorm', linewidth=3)"""
     plt.show()
 
 

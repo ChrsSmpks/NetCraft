@@ -5,6 +5,7 @@ from scipy.sparse import spdiags
 from scipy.sparse.linalg import gmres
 import concurrent.futures
 from functools import partial
+from joblib import Parallel, delayed
 
 from .spanningEdgeBetweenness import get_laplacian_matrix
 from .treeC import edge_incidence_matrix
@@ -111,7 +112,7 @@ def fastTreeC(window, node_list):
 
     # Modify the linear system with preconditioning
     preconditioned_A = preconditioner_mat.dot(L)
-    print('did precondition A')
+    #print('did precondition A')
 
     # Number of nodes and edges in the graph
     n = len(node_list)
@@ -122,16 +123,28 @@ def fastTreeC(window, node_list):
 
     # Iterate over k dimensions
     k = int(np.ceil(np.log2(n)))  # k = O(log n)
-
-    try:
-        with concurrent.futures.ProcessPoolExecutor() as executor:
+    process = psutil.Process(os.getpid())
+    #print(f"Memory usage: {process.memory_info().rss / (1024 * 1024):.2f} MB")
+    func = partial(compute_resistance_for_iteration, B=B, L=L, node_list=nodes,
+                   edges=edges,
+                   k=k, preconditioned_A=preconditioned_A, preconditioner_mat=preconditioner_mat)
+    results = Parallel(n_jobs=4)(delayed(func)(i) for i in range(k))
+    #print(f"Memory usage: {process.memory_info().rss / (1024 * 1024):.2f} MB")
+    """with concurrent.futures.ProcessPoolExecutor(max_workers=2) as executor:
+        func = partial(compute_resistance_for_iteration, B=B, L=L, node_list=nodes,
+                       edges=edges,
+                       k=k, preconditioned_A=preconditioned_A, preconditioner_mat=preconditioner_mat)
+        results = list(executor.map(func, range(k)))
+        print(f"Memory usage: {process.memory_info().rss / (1024 * 1024):.2f} MB")"""
+    """try:
+        with concurrent.futures.ProcessPoolExecutor(max_workers=2) as executor:
             func = partial(compute_resistance_for_iteration, B=B, L=L, node_list=nodes,
                            edges=edges,
                            k=k, preconditioned_A=preconditioned_A, preconditioner_mat=preconditioner_mat)
             results = list(executor.map(func, range(k)))
-            #print(f"Memory usage: {process.memory_info().rss / (1024 * 1024):.2f} MB")
+            print(f"Memory usage: {process.memory_info().rss / (1024 * 1024):.2f} MB")
     except Exception as e:
-        print(f"An error occurred: {str(e)}")
+        print(f"An error occurred: {str(e)}")"""
 
     # Merge results from all iterations
     for R_iter in results:

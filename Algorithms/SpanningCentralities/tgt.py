@@ -10,7 +10,7 @@ def get_eigen(graph_edges, node_list):
 
     # Initialize the Adjacency Matrix
     node_num = len(node_list)
-    A = np.zeros((node_num, node_num), dtype=int)
+    A = np.zeros((node_num, node_num), dtype=float)
 
     # Populate the Adjacency Matrix
     for edge in graph_edges:
@@ -20,8 +20,8 @@ def get_eigen(graph_edges, node_list):
 
         # Set the corresponding entries in the adjacency matrix to 1
         if not edge.weight:
-            A[index1, index2] = 1
-            A[index2, index1] = 1
+            A[index1, index2] = 1.0
+            A[index2, index1] = 1.0
         else:
             A[index1, index2] = edge.weight
             A[index2, index1] = edge.weight

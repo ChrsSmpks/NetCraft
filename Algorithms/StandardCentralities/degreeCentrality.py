@@ -30,6 +30,11 @@ def degreeCentrality(window, node_list, weighted, directed):
     stop = timeit.default_timer()
     print('Time: ', stop - start)
 
+    for node in degrees:
+        degrees[node] = round(degrees[node], 4)
+        if window.directed:
+            degrees_in[node] = round(degrees_in[node], 4)
+
     window.side_table.update_table(degrees, 'Node', degrees_in)
     window.side_label.setText('Algorithm: Degree Centrality')
     window.dock_widget.setHidden(False)

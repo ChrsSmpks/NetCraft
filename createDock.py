@@ -1,5 +1,6 @@
 import csv
 
+from PyQt6.QtCore import QSize
 from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QFileDialog
 
@@ -24,6 +25,7 @@ def create_dock(window):
     export_button = QPushButton()
     export_button.setIcon(QIcon('Icons\\export.png'))
     export_button.setToolTip('Export CSV')
+    export_button.setFixedSize(QSize(32, 32))
     export_button.clicked.connect(lambda: export_button_clicked(window))
 
     side_header_layout.addWidget(side_label)
@@ -42,7 +44,7 @@ def create_dock(window):
 
 
 def export_button_clicked(window):
-    data, _ = window.side_table.get_data()
+    data, in_degree = window.side_table.get_data()
 
     save_path, _ = QFileDialog.getSaveFileName(window, "Save Centralities Table", "", "CSV Files (*.csv)")
 
@@ -50,5 +52,9 @@ def export_button_clicked(window):
     if save_path:
         with open(save_path, mode='w', newline='') as file:
             writer = csv.writer(file)
-            for edge_node, centrality in data.items():
-                writer.writerow([edge_node, centrality])
+            if not in_degree:
+                for edge_node, centrality in data.items():
+                    writer.writerow([edge_node, centrality])
+            else:
+                for edge_node in data:
+                    writer.writerow([edge_node, data[edge_node], in_degree[edge_node]])

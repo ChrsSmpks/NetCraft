@@ -279,7 +279,7 @@ class GraphicView(QGraphicsView):
         new_edge = Edge(node1, node2, weight, self.main_window.directed, bidirectional)
         new_edge.setZValue(1)
         self.edges.append(new_edge)
-        #self.scene.addItem(new_edge)
+        self.scene.addItem(new_edge)
 
         self.main_window.statusBar().showMessage(f'Nodes: {len(node_list)} | Edges: {len(self.edges)} | Custom Graph')
         self.main_window.saved = False
@@ -344,11 +344,11 @@ class GraphicView(QGraphicsView):
         node_list.append(new_node)
 
         new_node.setZValue(2)
-        #self.scene.addItem(new_node)
+        self.scene.addItem(new_node)
 
         # Add text item for the number-key next to the node
         new_node.graphic_key.setZValue(2)
-        #self.scene.addItem(new_node.graphic_key)
+        self.scene.addItem(new_node.graphic_key)
 
         self.main_window.statusBar().showMessage(f'Nodes: {len(node_list)} | Edges: {len(self.edges)} | Custom Graph')
         self.main_window.saved = False
