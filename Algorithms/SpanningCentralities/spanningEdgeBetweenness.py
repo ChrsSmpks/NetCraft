@@ -17,7 +17,6 @@ def get_laplacian_matrix(graph_edges, node_list):
     # Initialize the Adjacency Matrix
     node_num = len(node_list)
     adj_matrix = np.zeros((node_num, node_num), dtype=float)
-    print('laplacian for weight', graph_edges[0].weight)
 
     # Populate the Adjacency Matrix
     for edge in graph_edges:
@@ -86,9 +85,7 @@ def msts_num(edges, nodes):
     '''
     laplacian_matrix = get_laplacian_matrix(edges, nodes)
 
-    #msts = np.linalg.det(laplacian_matrix[1:, 1:])
     msts = det(laplacian_matrix[1:, 1:])
-    print('msts =', msts)
 
     if np.isinf(msts):
         laplacian_matrix = normalize_matrix(laplacian_matrix)
@@ -151,19 +148,12 @@ def spanEdgeBetw(window, node_list):
     if not validateGraph(window, node_list, False, 'Spanning Edge Betweenness', False):
         return
 
-    import timeit
-    start = timeit.default_timer()
-
     msts, laplacian_matrix = msts_num(window.graphic_view.edges, node_list)
-    print('got msts:', msts)
 
     # Initialize a dictionary to store results for each edge
     spanning_betweenness_for_edges = {}
 
     edge_msts_and_centrality(node_list, window.graphic_view.edges, laplacian_matrix, msts, spanning_betweenness_for_edges)
-
-    stop = timeit.default_timer()
-    print('Time: ', stop - start)
 
     window.side_table.update_table(spanning_betweenness_for_edges, 'Edge')
     window.side_label.setText('Algorithm: Spanning Edge Betweenness')
@@ -235,9 +225,6 @@ def spanEdgeBetwWeighted(window, node_list):
     if not validateGraph(window, node_list, False, 'Spanning Edge Betweenness', False):
         return
 
-    import timeit
-    start = timeit.default_timer()
-
     edges = sorted(window.graphic_view.edges, key=lambda _edge: _edge.weight)  # Sort edges by weight
     vertices = node_list.copy()
     uf = UnionFind(vertices)
@@ -280,9 +267,6 @@ def spanEdgeBetwWeighted(window, node_list):
 
         # Skip to the next set of edges with different weights
         i = j
-
-    stop = timeit.default_timer()
-    print('Time: ', stop - start)
 
     window.side_table.update_table(spanning_betweenness_for_edges, 'Edge')
     window.side_label.setText('Algorithm: Spanning Edge Betweenness')

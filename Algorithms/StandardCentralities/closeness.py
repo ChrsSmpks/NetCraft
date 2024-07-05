@@ -13,9 +13,6 @@ def closeness(window, node_list):
     if not validateGraph(window, node_list, True, None, True):
         return
 
-    import timeit
-    start = timeit.default_timer()
-
     # Initialize closeness centrality dictionary
     closeness_centralities = {node.key: 0 for node in node_list}
 
@@ -50,10 +47,6 @@ def closeness(window, node_list):
 
         sum_distances = sum(distances.values())
         closeness_centralities[node.key] = round((len(node_list) - 1) / sum_distances, 4) if sum_distances != 0 else 0
-        #print('did node', node.key)
-
-    stop = timeit.default_timer()
-    print('Time: ', stop - start)
 
     window.side_table.update_table(closeness_centralities, 'Node')
     window.side_label.setText('Algorithm: Closeness')

@@ -1,3 +1,4 @@
+from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import QDialog, QVBoxLayout, QLabel, QLineEdit, QDialogButtonBox, QMessageBox
 
 
@@ -18,6 +19,7 @@ class NetworkGenerationDialog(QDialog):
         self.edit_nodes = QLineEdit(self)
         self.edit_density = QLineEdit(self)
         self.setWindowTitle('Network Properties')
+        self.setWindowIcon(QIcon('Icons\\logo.png'))
         self.initUI()
 
     def initUI(self):

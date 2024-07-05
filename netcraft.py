@@ -8,7 +8,7 @@ from graphicView import GraphicView
 from mainMenu import create_main_menu
 from fileIO import save_dialog
 from DataStructures.node import node_list
-from style_sheets import main_page_style, graphic_view_style
+from style_sheets import main_page_style, graphic_view_style, app_style
 from toolbar import create_toolbar
 
 
@@ -41,6 +41,7 @@ class Window(QMainWindow):
         self.weighted = False
         self.directed = False
         self.node_color = 'green'
+        self.visualization = True
 
         # Set window properties
         self.setWindowTitle('NetCraft')
@@ -82,24 +83,6 @@ class Window(QMainWindow):
         self.main_menu = create_main_menu(self)
 
         # Create side dock for Centrality info
-
-        """# Create a side widget
-        side_widget = QWidget(self)
-
-        side_widget.setStyleSheet(side_style)
-        side_layout = QVBoxLayout(side_widget)
-
-        # Create a label to display info about the algorithm used
-        self.side_label = QLabel(side_widget)
-        self.side_label.setStyleSheet('color: white;')
-
-        # Create an empty table to display centralities
-        self.side_table = CentralityTable({})
-        self.side_table.setStyleSheet(table_style)
-
-        side_layout.addWidget(self.side_label)
-        side_layout.addWidget(self.side_table)"""
-
         from createDock import create_dock
         side_widget, self.side_label, self.side_table = create_dock(self)
 
@@ -139,6 +122,7 @@ class Window(QMainWindow):
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     app.setStyle('Fusion')
+    app.setStyleSheet(app_style)
     Gui = Window()
     Gui.show()
     sys.exit(app.exec())

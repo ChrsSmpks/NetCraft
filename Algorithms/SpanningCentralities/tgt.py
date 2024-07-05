@@ -70,11 +70,7 @@ def get_eigen(graph_edges, node_list):
     eigenvectors = eigenvectors.tolist()
 
     # Create a list of (eigenvalue, eigenvector) pairs
-    #eigens = list(zip(eigenvalues, eigenvectors))
     eigens = sorted(zip(eigenvalues, eigenvectors), key=lambda x: abs(x[0]))
-    """for eigen in eigens:
-        print(type(eigen))
-        print(eigen)"""
 
     return eigens
 
@@ -104,22 +100,16 @@ def get_upsilon(eigens, omega, node_list, node1, node2, m):
 
 
 def get_tau(lamba, deg1, deg2, Y, Delta_t, epsilon):
-    #print(f'deg1={deg1}, deg2={deg2}, lamba={lamba}, Y={Y}, Delta_t={Delta_t}, epsilon={epsilon}')
     a1 = 1 / deg1 + 1 / deg2 - 2 / (deg1 * deg2) - Y
-    #a2 = max(epsilon - Delta_t, epsilon)
     a2 = epsilon - Delta_t
-    #a3 = max(1 - (lamba ** 2), 1.0)
     a3 = 1 - (lamba ** 2)
-    #a = np.log(max(np.abs(a1 / (a2 * a3)), 1.0))
     a = np.log(a1 / a2 / a3)
     if np.isnan(a):
         a = 0
     b = np.log(1 / np.abs(lamba))
-    #print(f'a1 = {a1} a2={a2} a3={a3} a= {a}, b={b}')
     if not b:
         b = 1.0
     tau_ij = max(round(abs(a / b - 1)), 1)
-    #print(f'tau_ij={tau_ij}')
 
     return int(tau_ij + 1) if tau_ij % 2 == 0 else int(tau_ij)
 
@@ -140,13 +130,11 @@ def calTau(graph_edges, node_list, node1, node2, epsilon, eigens, weighted):
     tau_ij = get_tau(lamba, deg1, deg2, 0, 0, epsilon)
 
     Y = get_upsilon(eigens, omega, node_list, node1, node2, m)
-    #lamba = eigens[omega - 2][0]
+
     t = 1
     while True:
-        #print('t=', t)
         Delta_t = get_delta(eigens, t, omega, node_list, node1, node2, m)
         new_tau_ij = get_tau(lamba, deg1, deg2, Y, Delta_t, epsilon)
-        #print(f'new tau={new_tau_ij}, Dt={Delta_t}')
 
         # Check if tau_ij is less than or equal to t
         if t <= new_tau_ij and tau_ij < new_tau_ij: #  < tau_ij
@@ -155,7 +143,6 @@ def calTau(graph_edges, node_list, node1, node2, epsilon, eigens, weighted):
         else:
             break
 
-    #print(f'final tau={tau_ij}')
     return tau_ij
 
 
@@ -169,18 +156,7 @@ def maxCalTau(graph_edges, node_list, node, epsilon, eigens, weighted):
         # Update tau_p if tau_ij is greater
         if tau_ij > max_tau:
             max_tau = tau_ij
-        """# Find the edge that connects the current node and its neighbor
-        for edge in graph_edges:
-            if (edge.node1 == node and edge.node2 == neighbor) or (edge.node1 == node and edge.node2 == node):
-                # Calculate tau_ij for the current edge
-                # tau_ij = calTau(graph_edges, edge, epsilon, eigenvalues, feature_vectors, node_list)
-                tau_ij = calTau(graph_edges, node_list, edge, epsilon, eigens, weighted)
 
-                # Update tau_p if tau_ij is greater
-                if tau_ij > max_tau:
-                    max_tau = tau_ij"""
-
-    #print('max_tau=', max_tau)
     return max_tau
 
 
@@ -189,13 +165,8 @@ def tgt(window, node_list):
     if not validateGraph(window, node_list, False, 'TGT', False):
         return
 
-    import timeit
-    start = timeit.default_timer()
-    #eigenvalues, feature_vectors = get_eigen(window.graphic_view.edges, node_list)
     eigens = get_eigen(window.graphic_view.edges, node_list)
 
-    #epsilon = 1e-4
-    #epsilon = 0.05
     epsilon = 0.1
 
     node_num = len(node_list)
@@ -232,16 +203,12 @@ def tgt(window, node_list):
             for neighbor in node.neighbors.keys():
                 gt[node_list.index(node), node_list.index(neighbor)] += p[l][src_idx, src_idx] / deg_src - p[l][
                                                                             node_list.index(neighbor), src_idx] / deg_src
-        #print('DID NODE', node.key)
 
     st = {}
     for edge in window.graphic_view.edges:
         st[tuple(sorted((edge.node1.key, edge.node2.key)))] = round(
             gt[node_list.index(edge.node1), node_list.index(edge.node2)] + gt[
                 node_list.index(edge.node2), node_list.index(edge.node1)], 4)
-
-    stop = timeit.default_timer()
-    print('Time: ', stop - start)
 
     window.side_table.update_table(st, 'Edge')
     window.side_label.setText('Algorithm: TGT')

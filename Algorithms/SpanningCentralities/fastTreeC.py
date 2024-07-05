@@ -83,10 +83,6 @@ def fastTreeC(window, node_list):
     nodes = []
     for node in node_list:
         nodes.append(node.key)
-    print('converted edges, nodes')
-
-    import timeit
-    start = timeit.default_timer()
 
     # Construct the Edge Incidence matrix
     B = edge_incidence_matrix(window.graphic_view.edges, node_list)
@@ -123,35 +119,14 @@ def fastTreeC(window, node_list):
 
     # Iterate over k dimensions
     k = int(np.ceil(np.log2(n)))  # k = O(log n)
-    process = psutil.Process(os.getpid())
-    #print(f"Memory usage: {process.memory_info().rss / (1024 * 1024):.2f} MB")
     func = partial(compute_resistance_for_iteration, B=B, L=L, node_list=nodes,
                    edges=edges,
                    k=k, preconditioned_A=preconditioned_A, preconditioner_mat=preconditioner_mat)
     results = Parallel(n_jobs=4)(delayed(func)(i) for i in range(k))
-    #print(f"Memory usage: {process.memory_info().rss / (1024 * 1024):.2f} MB")
-    """with concurrent.futures.ProcessPoolExecutor(max_workers=2) as executor:
-        func = partial(compute_resistance_for_iteration, B=B, L=L, node_list=nodes,
-                       edges=edges,
-                       k=k, preconditioned_A=preconditioned_A, preconditioner_mat=preconditioner_mat)
-        results = list(executor.map(func, range(k)))
-        print(f"Memory usage: {process.memory_info().rss / (1024 * 1024):.2f} MB")"""
-    """try:
-        with concurrent.futures.ProcessPoolExecutor(max_workers=2) as executor:
-            func = partial(compute_resistance_for_iteration, B=B, L=L, node_list=nodes,
-                           edges=edges,
-                           k=k, preconditioned_A=preconditioned_A, preconditioner_mat=preconditioner_mat)
-            results = list(executor.map(func, range(k)))
-            print(f"Memory usage: {process.memory_info().rss / (1024 * 1024):.2f} MB")
-    except Exception as e:
-        print(f"An error occurred: {str(e)}")"""
 
     # Merge results from all iterations
     for R_iter in results:
         merge_resistances(R, R_iter)
-
-    stop = timeit.default_timer()
-    print('Time: ', stop - start)
 
     for edge in R:
         R[edge] = round(R[edge], 4)

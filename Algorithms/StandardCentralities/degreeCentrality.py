@@ -10,9 +10,6 @@ def degreeCentrality(window, node_list, weighted, directed):
     if not validateGraph(window, node_list, True, None, True):
         return
 
-    import timeit
-    start = timeit.default_timer()
-
     if not directed:
         degrees_in = None
         if not weighted:
@@ -26,9 +23,6 @@ def degreeCentrality(window, node_list, weighted, directed):
         else:
             degrees = {node.key: sum(node.neighbors.values()) for node in node_list}
             degrees_in = {node.key: sum(node.neighbors_in.values()) for node in node_list}
-
-    stop = timeit.default_timer()
-    print('Time: ', stop - start)
 
     for node in degrees:
         degrees[node] = round(degrees[node], 4)

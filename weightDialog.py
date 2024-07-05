@@ -1,3 +1,4 @@
+from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import QDialog, QVBoxLayout, QLabel, QLineEdit, QDialogButtonBox, QMessageBox
 
 
@@ -16,6 +17,7 @@ class WeightDialog(QDialog):
 
         self.edge_weight = QLineEdit(self)
         self.setWindowTitle('Network Properties')
+        self.setWindowIcon(QIcon('Icons\\logo.png'))
         self.initUI()
 
     def initUI(self):

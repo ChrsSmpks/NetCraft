@@ -16,6 +16,7 @@ from netGenerationDialog import NetworkGenerationDialog
 from propertiesDialog import PropertiesDialog
 from DataStructures.node import node_list
 from fileIO import save_graph, load_graph
+from referenceDialog import ReferenceDialog
 from style_sheets import menu_style
 
 
@@ -38,6 +39,7 @@ def create_main_menu(window):
     standard_centralities_menu = create_standard_cenrtalities_menu(main_menu, window)
     spanning_centralities_menu = create_spanning_centralities_menu(main_menu, window)
     options_menu = create_options_menu(main_menu, window)
+    references_menu = create_references_menu(main_menu, window)
     about_menu = create_about_menu(main_menu, window)
 
     # Add submenus
@@ -45,6 +47,7 @@ def create_main_menu(window):
     main_menu.addMenu(standard_centralities_menu)
     main_menu.addMenu(spanning_centralities_menu)
     main_menu.addMenu(options_menu)
+    main_menu.addMenu(references_menu)
     main_menu.addMenu(about_menu)
 
     # Styling
@@ -164,13 +167,49 @@ def create_options_menu(main_menu, window):
     options_menu = QMenu('Options', main_menu)
 
     # Create properties action
-    options_act = QAction('Options...', main_menu)
+    options_act = QAction('Properties...', main_menu)
     options_act.triggered.connect(lambda: options_action(window))
 
     # Add action
     options_menu.addAction(options_act)
 
     return options_menu
+
+
+def create_references_menu(main_menu, window):
+    # Create References submenu
+    references_menu = QMenu('References', main_menu)
+
+    # Create actions
+    degree_action = QAction('Degree', main_menu)
+    betweenness_action = QAction('Betweenness', main_menu)
+    edge_betweenness_action = QAction('Edge Betweenness', main_menu)
+    closeness_action = QAction('Closeness', main_menu)
+    spanning_centrality_action = QAction('Spanning Edge Betweenness', main_menu)
+    treec_action = QAction('TreeC', main_menu)
+    fast_treec_Action = QAction('Fast-TreeC', main_menu)
+    tgt_action = QAction('TGT', main_menu)
+
+    degree_action.triggered.connect(lambda: references_action(degree_action.text()))
+    betweenness_action.triggered.connect(lambda: references_action(betweenness_action.text()))
+    edge_betweenness_action.triggered.connect(lambda: references_action(edge_betweenness_action.text()))
+    closeness_action.triggered.connect(lambda: references_action(closeness_action.text()))
+    spanning_centrality_action.triggered.connect(lambda: references_action(spanning_centrality_action.text()))
+    treec_action.triggered.connect(lambda: references_action(treec_action.text()))
+    fast_treec_Action.triggered.connect(lambda: references_action(fast_treec_Action.text()))
+    tgt_action.triggered.connect(lambda: references_action(tgt_action.text()))
+
+    # Add actions
+    references_menu.addAction(degree_action)
+    references_menu.addAction(betweenness_action)
+    references_menu.addAction(edge_betweenness_action)
+    references_menu.addAction(closeness_action)
+    references_menu.addAction(spanning_centrality_action)
+    references_menu.addAction(treec_action)
+    references_menu.addAction(fast_treec_Action)
+    references_menu.addAction(tgt_action)
+
+    return references_menu
 
 
 def create_about_menu(main_menu, window):
@@ -186,21 +225,6 @@ def create_about_menu(main_menu, window):
 
 
 def about_action(window):
-    """import csv
-    betweenness(window, node_list)
-    data, _ = window.side_table.get_data()
-    save_path = 'C:\\Users\\suvro\\Desktop\\Times\\UU\\Twitter lists\\CSV Data\\uu_twitterlists_betw.csv'
-    with open(save_path, mode='w', newline='') as file:
-        writer = csv.writer(file)
-        for edge_node, centrality in data.items():
-            writer.writerow([edge_node, centrality])
-    edgeBetweenness(window, node_list)
-    data, _ = window.side_table.get_data()
-    save_path = 'C:\\Users\\suvro\\Desktop\\Times\\UU\\Twitter lists\\CSV Data\\uu_twitterlists_ebetw.csv'
-    with open(save_path, mode='w', newline='') as file:
-        writer = csv.writer(file)
-        for edge_node, centrality in data.items():
-            writer.writerow([edge_node, centrality])"""
     info_text = (
         '**********************************\n'
         '\n'
@@ -217,6 +241,11 @@ def about_action(window):
 def options_action(window):
     properties_dialog = PropertiesDialog(window)
     properties_dialog.exec()
+
+
+def references_action(algo_name):
+    references_dialog = ReferenceDialog(algo_name)
+    references_dialog.exec()
 
 
 def generate_net(window):

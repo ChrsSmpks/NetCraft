@@ -1,3 +1,4 @@
+from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import QLabel, QVBoxLayout, QDialog, QFrame, QHBoxLayout, QRadioButton, QComboBox, QPushButton, \
     QButtonGroup
 
@@ -25,7 +26,9 @@ class PropertiesDialog(QDialog):
         self.color_combo = None
         self.edge_weight_radio = None
         self.edge_directed_radio = None
+        self.visualization_on_radio = None
         self.setWindowTitle("Properties")
+        self.setWindowIcon(QIcon('Icons\\logo.png'))
         self.initUI()
 
     def initUI(self):
@@ -121,6 +124,26 @@ class PropertiesDialog(QDialog):
         line.setFrameShadow(QFrame.Shadow.Sunken)
         layout.addWidget(line)
 
+        # Visualization section
+        visualization_group = QHBoxLayout()
+        visualization_label = QLabel("Visualization:")
+        visualization_label.setFixedWidth(100)
+        self.visualization_on_radio = QRadioButton("On")
+        visualization_off_radio = QRadioButton("Off")
+
+        self.visualization_on_radio.setChecked(self.main_window.visualization)
+        visualization_off_radio.setChecked(not self.main_window.visualization)
+
+        visualization_group.addWidget(visualization_label)
+        visualization_group.addWidget(self.visualization_on_radio)
+        visualization_group.addWidget(visualization_off_radio)
+
+        layout.addLayout(visualization_group)
+        """if self.main_window.visualization:
+            visualization_on_radio.setChecked(True)
+            visualization_off_radio.setChecked()"""
+
+
         # Node Color section
         color_group = QHBoxLayout()
         color_label = QLabel("Node Color:")
@@ -158,5 +181,6 @@ class PropertiesDialog(QDialog):
     def acceptProperties(self):
         self.main_window.weighted = self.edge_weight_radio.isChecked()
         self.main_window.directed = self.edge_directed_radio.isChecked()
+        self.main_window.visualization = self.visualization_on_radio.isChecked()
         self.main_window.node_color = self.color_combo.currentText().lower()
         self.accept()

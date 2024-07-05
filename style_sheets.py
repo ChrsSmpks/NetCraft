@@ -1,3 +1,17 @@
+app_style = '''
+            QMainWindow {
+                background-color: #1e1e1e;
+            }
+            QStatusBar {
+                background-color: #1e1e1e;
+                color: white;
+            }
+            QDockWidget {
+                background-color: #1e1e1e;
+                color: white;
+            }
+            '''
+
 main_page_style = '''
                 background-color: #1e1e1e;
                 color: #C0C0C0;

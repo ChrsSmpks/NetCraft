@@ -55,9 +55,6 @@ def treeC(window, node_list):
     if not validateGraph(window, node_list, False, 'TreeC', False):
         return
 
-    import timeit
-    start = timeit.default_timer()
-
     # Initialize matrices
     Z = np.empty((0, len(node_list)))
 
@@ -117,9 +114,6 @@ def treeC(window, node_list):
         u, v = node_list.index(edge.node1), node_list.index(edge.node2)
 
         R[tuple(sorted((key1, key2)))] = round(np.linalg.norm(Z[:, u] - Z[:, v]) ** 2, 4)
-
-    stop = timeit.default_timer()
-    print('Time: ', stop - start)
 
     window.side_table.update_table(R, 'Edge')
     window.side_label.setText('Algorithm: TreeC')
